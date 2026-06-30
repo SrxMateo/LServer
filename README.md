@@ -6,7 +6,8 @@
 
 <p align="center">
   <strong>El poder absoluto de tus servidores en la palma de tu terminal.</strong><br>
-  Domina, administra y mantén online tus nodos 24/7 sin dolores de cabeza. Diseñado con calidad Premium por <em>SrxMateo & Lumax Studio</em>.
+  Domina, administra y mantén online tus nodos 24/7 sin dolores de cabeza. Diseñado con calidad Premium por <em>SrxMateo & Lumax Studio</em>.<br>
+  🌐 <b>Descubre más proyectos impresionantes en:</b> <a href="https://lumax.lat">lumax.lat</a>
 </p>
 
 ---
@@ -65,7 +66,7 @@ Te encontrarás con un Panel de Control majestuoso y una lista completa de opcio
 | `lserver daemon start` | **Iniciar Vigilante**: Activa el motor de LServer en background. |
 | `lserver daemon stop` | **Detener Vigilante**: Apaga los servicios de monitoreo. |
 | `lserver -l` | **Listar**: Carga el Dashboard y la tabla de todos tus servidores creados. |
-| `lserver -e <nodo>` | **Entrar**: Ingresa a la consola en vivo del servidor. *(Usa `Ctrl+A, D` para salir)* |
+| `lserver -e <nodo>` | **Entrar**: Ingresa al log en vivo del servidor. *(Usa `Ctrl+C` para salir sin detenerlo)* |
 | `lserver -v` | **Versión**: Imprime la versión actual de la herramienta instalada. |
 
 ---
@@ -89,11 +90,11 @@ lserver
 
 ## 🤝 Soporte y Comunidad
 
-**LServer** es un proyecto nacido en los laboratorios de [Lumax Studio](#). Estamos constantemente creando soluciones vanguardistas para llevar el ecosistema de servidores al siguiente nivel.
+**LServer** es un proyecto nacido en los laboratorios de [Lumax Studio](https://lumax.lat). Estamos constantemente creando soluciones vanguardistas para llevar el ecosistema de servidores al siguiente nivel. Descubre más herramientas y proyectos épicos visitando nuestra web oficial: **[lumax.lat](https://lumax.lat)**.
 
 *Si encuentras un error o tienes una idea brutal para mejorar la herramienta, no dudes en abrir un **Issue** o enviarnos un **Pull Request**.*
 
 ---
 <p align="center">
-  <small>© 2026 SrxMateo & Lumax Studio. Construido con pasión y precisión.</small>
+  <small>© 2026 SrxMateo & Lumax Studio. Construido con pasión y precisión. Más en <a href="https://lumax.lat">lumax.lat</a></small>
 </p>
