@@ -1,9 +1,10 @@
 import os
 import subprocess
 import shutil
+import signal
+import re
 from lserver.state import add_node, remove_node, get_node, list_nodes, set_node_critical, set_node_backup
 from lserver.ui import log_success, log_info, log_error, error_exit
-import re
 
 def validate_node_name(name):
     if not re.match(r'^[a-zA-Z0-9_-]+$', name):
@@ -68,12 +69,42 @@ def create_manual_backup(name, path):
         log_error(f"Fallo al crear el backup: {e}")
 
 def start_daemon():
-    subprocess.run(["screen", "-dmS", "lserver_daemon", "lserver", "--run-daemon"])
-    log_success("LServer Daemon (Auto-Heal & Backups) iniciado en segundo plano.")
+    pid_file = os.path.expanduser("~/.lserver_daemon.pid")
+    log_file = os.path.expanduser("~/.lserver_daemon.log")
+    
+    if os.path.exists(pid_file):
+        with open(pid_file, "r") as f:
+            try:
+                pid = int(f.read().strip())
+                os.kill(pid, 0)
+                log_info("LServer Daemon ya está corriendo.")
+                return
+            except (ValueError, OSError):
+                pass
+                
+    f_log = open(log_file, "a")
+    process = subprocess.Popen(
+        ["lserver", "--run-daemon"],
+        stdout=f_log, stderr=subprocess.STDOUT,
+        start_new_session=True
+    )
+    with open(pid_file, "w") as f:
+        f.write(str(process.pid))
+    log_success("LServer Daemon iniciado en segundo plano (Python Puro).")
 
 def stop_daemon():
-    subprocess.run(["screen", "-S", "lserver_daemon", "-X", "quit"])
-    log_success("LServer Daemon detenido.")
+    pid_file = os.path.expanduser("~/.lserver_daemon.pid")
+    if os.path.exists(pid_file):
+        with open(pid_file, "r") as f:
+            try:
+                pid = int(f.read().strip())
+                os.kill(pid, signal.SIGTERM)
+                log_success("LServer Daemon detenido.")
+            except (ValueError, OSError):
+                log_info("LServer Daemon no estaba corriendo.")
+        os.remove(pid_file)
+    else:
+        log_info("LServer Daemon no está corriendo.")
 
 def create_node(name):
     validate_node_name(name)
@@ -107,15 +138,25 @@ def create_node(name):
     add_node(name, node_path, "./start.sh")
     log_success(f"Nodo '{name}' creado exitosamente.")
 
+def get_node_pid_file(name):
+    node = get_node(name)
+    if node:
+        return os.path.join(node["path"], "server.pid")
+    return None
+
 def is_running(name):
     validate_node_name(name)
-    # Comprobar si hay una sesion de screen con este nombre
-    try:
-        result = subprocess.run(["screen", "-ls"], capture_output=True, text=True)
-        return f".{name}\t" in result.stdout
-    except FileNotFoundError:
-        log_error("La utilidad 'screen' no está instalada. No se puede comprobar el estado.")
+    pid_file = get_node_pid_file(name)
+    if not pid_file or not os.path.exists(pid_file):
         return False
+    
+    with open(pid_file, "r") as f:
+        try:
+            pid = int(f.read().strip())
+            os.kill(pid, 0)
+            return True
+        except (ValueError, OSError):
+            return False
 
 def start_node(name):
     validate_node_name(name)
@@ -132,17 +173,27 @@ def start_node(name):
     if not os.path.exists(path):
         error_exit(f"La ruta del nodo no existe: {path}")
 
-    # Iniciamos screen en modo detached (-dm)
-    # y damos el nombre de sesion (-S)
-    cmd = f"cd {path} && {start_cmd}"
     log_info(f"Arrancando nodo '{name}' en {path}...")
     try:
-        subprocess.run(["screen", "-dmS", name, "bash", "-c", cmd], check=True)
-        log_success(f"Nodo '{name}' arrancado y corriendo en segundo plano.")
-    except subprocess.CalledProcessError as e:
+        log_file_path = os.path.join(path, "server.log")
+        f_log = open(log_file_path, "a")
+        
+        process = subprocess.Popen(
+            ["bash", "-c", start_cmd],
+            cwd=path,
+            stdout=f_log,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        
+        pid_file = os.path.join(path, "server.pid")
+        with open(pid_file, "w") as f:
+            f.write(str(process.pid))
+            
+        log_success(f"Nodo '{name}' arrancado en segundo plano (PID: {process.pid}).")
+    except Exception as e:
         error_exit(f"Error al arrancar el nodo: {e}")
-    except FileNotFoundError:
-        error_exit("La utilidad 'screen' no está instalada.")
 
 def stop_node(name):
     validate_node_name(name)
@@ -154,13 +205,18 @@ def stop_node(name):
         return
 
     log_info(f"Deteniendo nodo '{name}' de forma segura...")
+    pid_file = get_node_pid_file(name)
+    with open(pid_file, "r") as f:
+        pid = int(f.read().strip())
+    
     try:
-        subprocess.run(["screen", "-S", name, "-X", "quit"], check=True)
+        os.kill(pid, signal.SIGTERM)
         log_success(f"Nodo '{name}' detenido.")
-    except subprocess.CalledProcessError:
-        error_exit(f"Fallo al intentar detener el nodo '{name}'.")
-    except FileNotFoundError:
-        error_exit("La utilidad 'screen' no está instalada.")
+    except OSError as e:
+        error_exit(f"Fallo al intentar detener el nodo '{name}': {e}")
+    
+    if os.path.exists(pid_file):
+        os.remove(pid_file)
 
 def kill_node(name):
     validate_node_name(name)
@@ -168,25 +224,41 @@ def kill_node(name):
         error_exit(f"El nodo '{name}' no existe.")
 
     log_info(f"Matando forzosamente el nodo '{name}'...")
-    # Usamos pkill para matar las sesiones de screen asociadas a este nodo
-    subprocess.run(["pkill", "-f", f"SCREEN.*{name}"], capture_output=True)
-    log_success(f"Señales de terminación enviadas a procesos de '{name}'.")
+    if is_running(name):
+        pid_file = get_node_pid_file(name)
+        with open(pid_file, "r") as f:
+            pid = int(f.read().strip())
+        try:
+            os.kill(pid, signal.SIGKILL)
+            log_success(f"Señal SIGKILL enviada al proceso de '{name}'.")
+        except OSError as e:
+            log_error(f"Error al matar proceso: {e}")
+        
+        if os.path.exists(pid_file):
+            os.remove(pid_file)
+    else:
+        log_info(f"El nodo '{name}' no estaba corriendo.")
 
 def enter_node(name):
     validate_node_name(name)
-    if not get_node(name):
+    node = get_node(name)
+    if not node:
         error_exit(f"El nodo '{name}' no existe.")
     
     if not is_running(name):
         error_exit(f"El nodo '{name}' no está corriendo. Inícialo primero con -p.")
     
-    log_info(f"Entrando al nodo '{name}'. Presiona Ctrl+A, y luego D para salir sin detenerlo.")
+    log_info(f"Mostrando log en vivo del nodo '{name}'. Presiona Ctrl+C para salir.")
     try:
-        subprocess.run(["screen", "-r", name])
-    except FileNotFoundError:
-        error_exit("La utilidad 'screen' no está instalada.")
+        log_file_path = os.path.join(node["path"], "server.log")
+        if not os.path.exists(log_file_path):
+            error_exit("El archivo de log aún no existe.")
+        
+        subprocess.run(["tail", "-f", log_file_path])
+    except KeyboardInterrupt:
+        print("\nSaliendo del log en vivo.")
     except Exception as e:
-        error_exit(f"Error al entrar a la sesión: {e}")
+        error_exit(f"Error al leer el log: {e}")
 
 def list_all_nodes():
     nodes = list_nodes()
