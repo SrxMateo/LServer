@@ -248,13 +248,15 @@ def enter_node(name):
     if not is_running(name):
         error_exit(f"El nodo '{name}' no está corriendo. Inícialo primero con -p.")
     
-    log_info(f"Mostrando log en vivo del nodo '{name}'. Presiona Ctrl+C para salir.")
+    log_info(f"Mostrando consola en vivo de '{name}'. Haz scroll hacia arriba para ver el historial.")
+    log_info("Presiona Ctrl+C para salir.")
     try:
         log_file_path = os.path.join(node["path"], "server.log")
         if not os.path.exists(log_file_path):
             error_exit("El archivo de log aún no existe.")
         
-        subprocess.run(["tail", "-f", log_file_path])
+        # 'tail -n +1 -f' imprime desde la línea 1 hasta el final y se queda escuchando
+        subprocess.run(["tail", "-n", "+1", "-f", log_file_path])
     except KeyboardInterrupt:
         print("\nSaliendo del log en vivo.")
     except Exception as e:
