@@ -34,7 +34,11 @@ cd "$TMP_DIR"
 
 echo -e "\n${ORANGE}[3/3] Compilando e Instalando a nivel global...${RESET}"
 # Instalamos la CLI de Python en modo global, forzando la instalación para entornos Linux modernos
-sudo pip3 install . --break-system-packages 2>/dev/null || sudo pip3 install .
+if pip3 install --help | grep -q "break-system-packages"; then
+    sudo pip3 install . --break-system-packages
+else
+    sudo pip3 install .
+fi
 
 echo -e "\n${GREEN}╔════════════════════════════════════════════════════════════════╗${RESET}"
 echo -e "${GREEN}║ [ÉXITO] LServer se ha instalado correctamente en tu servidor.  ║${RESET}"
