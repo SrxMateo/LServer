@@ -23,7 +23,7 @@ fi
 
 if ! command -v pip3 >/dev/null 2>&1; then
     echo -e "${RED}Python3-pip no está instalado. Instalándolo ahora...${RESET}"
-    sudo apt-get update && sudo apt-get install python3-pip -y
+    sudo apt-get update && sudo apt-get install python3-pip python3-setuptools -y
 fi
 
 echo -e "\n${ORANGE}[2/3] Descargando la última versión de LServer...${RESET}"
@@ -35,7 +35,7 @@ cd "$TMP_DIR"
 echo -e "\n${ORANGE}[3/3] Compilando e Instalando a nivel global...${RESET}"
 # Instalamos la CLI de Python en modo global, forzando la instalación para entornos Linux modernos
 if pip3 install --help | grep -q "break-system-packages"; then
-    sudo pip3 install . --break-system-packages
+    sudo env PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install . --break-system-packages
 else
     sudo pip3 install .
 fi
