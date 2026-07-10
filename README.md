@@ -1,16 +1,20 @@
+<div align="center">
+  <img src="assets/logo.png" alt="LServer CLI Logo" width="300">
+  <br/>
+
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=24&pause=1000&color=0E75B6&center=true&vCenter=true&width=600&lines=LServer+CLI+-+Server+Management;Ultimate+Control+for+SysAdmins;Zero-Trust+Security+Built-in;Powered+by+Lumax+Corp" alt="Typing SVG" />
+
+  <p>
+    <a href="https://lumax.lat"><img src="https://img.shields.io/badge/Powered_by-Lumax_Corp-0e75b6?style=for-the-badge&logo=google-earth&logoColor=white" alt="Lumax Corp"></a>
+    <img src="https://img.shields.io/badge/Status-Active_Development-brightgreen?style=for-the-badge" alt="Status">
+    <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+    <img src="https://img.shields.io/badge/License-MIT-purple?style=for-the-badge" alt="License">
+  </p>
+</div>
+
 <p align="center">
-  <img src="assets/logo.png" alt="LServer CLI Logo" width="500">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </p>
-
-<h1 align="center">⚡ LServer CLI - Ultimate Server Management ⚡</h1>
-
-<p align="center">
-  <strong>El poder absoluto de tus servidores en la palma de tu terminal.</strong><br>
-  Domina, administra y mantén online tus nodos 24/7 sin dolores de cabeza. Diseñado con calidad Premium por <em>SrxMateo & Lumax Studio</em>.<br>
-  🌐 <b>Descubre más proyectos impresionantes en:</b> <a href="https://lumax.lat">lumax.lat</a>
-</p>
-
----
 
 ## 🚀 ¿Qué es LServer CLI?
 
@@ -18,19 +22,28 @@ Se acabó el tener que buscar procesos huérfanos, perder tiempo con configuraci
 
 Con **LServer**, puedes encender, apagar, visualizar y administrar múltiples "nodos" (instancias de servidores o aplicaciones) con una interfaz de terminal increíblemente elegante, impulsada por tecnología de monitoreo en tiempo real.
 
-### 🔥 Características Principales
+<br/>
 
-*   **Motor SQLite Asíncrono**: Transacciones seguras (ACID) mediante patrón Singleton. Adiós a la corrupción de archivos JSON; LServer maneja miles de operaciones de nodos con fiabilidad militar.
+## 🔥 Arquitectura & Características
+
+<div align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=python,sqlite,linux,bash,docker,nginx&perline=6" />
+  </a>
+</div>
+
+*   **Motor SQLite Asíncrono**: Transacciones seguras (ACID) mediante patrón Singleton. Adiós a la corrupción de archivos JSON; LServer maneja miles de operaciones con fiabilidad militar.
 *   **Vigilante Inteligente (Daemon)**: Un proceso fantasma en segundo plano de 0% CPU que vigila tus servidores. 
     *   **Auto-Heal (❤)**: Si tu servidor crashea por falta de RAM o errores, el vigilante lo resucita automáticamente.
     *   **Auto-Backups (💾)**: Copias de seguridad automáticas a las 03:00 AM, aislando tus datos en archivos `.tar.gz` ultra-comprimidos.
 *   **Seguridad Zero-Trust**: Inyección de comandos, Path Traversal y ataques por Regex completamente bloqueados mediante sanitizadores estrictos y consultas SQL preparadas.
 *   **Estadísticas Nativas en Vivo**: Observa el consumo de CPU, RAM y Disco duro directamente en el hermoso Dashboard dorado.
-*   **Diseño de Terminal Premium**: Despídete de los textos blancos y aburridos. LServer utiliza una paleta de colores térmicos, iconografía (❤/💾) y ASCII interactivo que eleva la experiencia de usuario.
 
----
+<p align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</p>
 
-## ⚡ Instalación Mágica en 1 Clic (Recomendado)
+## ⚡ Instalación Mágica en 1 Clic
 
 No pierdas tiempo con instalaciones manuales. Hemos preparado un script de autoconfiguración para sistemas Linux modernos (Ubuntu, Debian, CentOS, etc.).
 
@@ -42,17 +55,13 @@ curl -sL https://raw.githubusercontent.com/SrxMateo/LServer/main/install.sh | ba
 
 ¡Eso es todo! El instalador se encargará de clonar el código, instalar las dependencias necesarias y dejar el comando global `lserver` listo para la acción.
 
----
+<p align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</p>
 
-## 🛠️ Panel de Control y Comandos
+## 🛠️ Panel de Control y Arsenal de Comandos
 
-Para ver tu centro de comando, simplemente escribe:
-
-```bash
-lserver
-```
-
-Te encontrarás con un Panel de Control majestuoso y una lista completa de opciones. Aquí tienes el arsenal completo a tu disposición:
+Para ver tu centro de comando, simplemente escribe `lserver`. Te encontrarás con un Panel de Control majestuoso.
 
 | Comando | Descripción |
 | :--- | :--- |
@@ -67,11 +76,12 @@ Te encontrarás con un Panel de Control majestuoso y una lista completa de opcio
 | `lserver daemon stop` | **Detener Vigilante**: Apaga los servicios de monitoreo. |
 | `lserver -l` | **Listar**: Carga el Dashboard y la tabla de todos tus servidores creados. |
 | `lserver -e <nodo>` | **Entrar**: Ingresa al log en vivo del servidor. *(Usa `Ctrl+C` para salir sin detenerlo)* |
-| `lserver -v` | **Versión**: Imprime la versión actual de la herramienta instalada. |
 
----
+<p align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</p>
 
-## 💡 Ejemplos de Uso
+## 💡 Ejemplos Rápidos de Producción
 
 **1. Creando tu primer servidor de producción:**
 ```bash
@@ -86,15 +96,12 @@ lserver
 ```
 *Aparecerá el Dashboard informándote qué nodo está ONLINE y cuál está OFFLINE.*
 
----
+<br/>
 
-## 🤝 Soporte y Comunidad
-
-**LServer** es un proyecto nacido en los laboratorios de [Lumax Studio](https://lumax.lat). Estamos constantemente creando soluciones vanguardistas para llevar el ecosistema de servidores al siguiente nivel. Descubre más herramientas y proyectos épicos visitando nuestra web oficial: **[lumax.lat](https://lumax.lat)**.
-
-*Si encuentras un error o tienes una idea brutal para mejorar la herramienta, no dudes en abrir un **Issue** o enviarnos un **Pull Request**.*
-
----
-<p align="center">
-  <small>© 2026 SrxMateo & Lumax Studio. Construido con pasión y precisión. Más en <a href="https://lumax.lat">lumax.lat</a></small>
-</p>
+<div align="center">
+  <h3>🤝 Desarrollo & Soporte</h3>
+  <p><b>LServer</b> es un proyecto de código abierto forjado en los laboratorios de <b>Lumax Studio</b>.</p>
+  <a href="https://lumax.lat"><img src="https://img.shields.io/badge/Visitar_Sitio_Oficial-www.lumax.lat-0e75b6?style=for-the-badge&logo=google-chrome" /></a>
+  <br/><br/>
+  <p><small>© 2026 SrxMateo & Lumax Studio. Construido con pasión y precisión.</small></p>
+</div>
