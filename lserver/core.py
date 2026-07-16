@@ -76,7 +76,7 @@ def start_daemon():
         with open(pid_file, "r") as f:
             try:
                 pid = int(f.read().strip())
-                os.kill(pid, 0)
+                os.killpg(pid, 0)
                 log_info("LServer Daemon ya está corriendo.")
                 return
             except (ValueError, OSError):
@@ -98,7 +98,7 @@ def stop_daemon():
         with open(pid_file, "r") as f:
             try:
                 pid = int(f.read().strip())
-                os.kill(pid, signal.SIGTERM)
+                os.killpg(pid, signal.SIGTERM)
                 log_success("LServer Daemon detenido.")
             except (ValueError, OSError):
                 log_info("LServer Daemon no estaba corriendo.")
@@ -153,7 +153,7 @@ def is_running(name):
     with open(pid_file, "r") as f:
         try:
             pid = int(f.read().strip())
-            os.kill(pid, 0)
+            os.killpg(pid, 0)
             return True
         except (ValueError, OSError):
             return False
@@ -210,7 +210,7 @@ def stop_node(name):
         pid = int(f.read().strip())
     
     try:
-        os.kill(pid, signal.SIGTERM)
+        os.killpg(pid, signal.SIGTERM)
         log_success(f"Nodo '{name}' detenido.")
     except OSError as e:
         error_exit(f"Fallo al intentar detener el nodo '{name}': {e}")
@@ -229,7 +229,7 @@ def kill_node(name):
         with open(pid_file, "r") as f:
             pid = int(f.read().strip())
         try:
-            os.kill(pid, signal.SIGKILL)
+            os.killpg(pid, signal.SIGKILL)
             log_success(f"Señal SIGKILL enviada al proceso de '{name}'.")
         except OSError as e:
             log_error(f"Error al matar proceso: {e}")
