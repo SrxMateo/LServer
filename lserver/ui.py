@@ -54,7 +54,7 @@ def print_dashboard(nodes, is_running_func):
     print_box_line(f"  {GOLD}lserver daemon start{RESET} {ORANGE}Arranca el vigilante en background.{RESET}", 58)
     print_box_line(f"  {GOLD}lserver daemon stop{RESET}  {ORANGE}Detiene el vigilante.{RESET}", 44)
     print_box_line(f"  {GOLD}lserver -l{RESET}           {ORANGE}Mostrar Dashboard con nodos creados.{RESET}", 59)
-    print_box_line(f"  {GOLD}lserver -e <nodo>{RESET}    {ORANGE}Entrar a la consola del nodo (Ctrl+A, D para salir).{RESET}", 75)
+    print_box_line(f"  {GOLD}lserver -e <nodo>{RESET}    {ORANGE}Consola interactiva del nodo (Ctrl+C para salir).{RESET}", 73)
     print_box_line(f"  {GOLD}lserver -v{RESET}           {ORANGE}Mostrar la versión de LServer.{RESET}", 53)
     print(f"{c_border}╠══════════════════════════════════════════════════════════════════════════════╣{RESET}")
     def pad_col(prefix_spaces, text_color, text, reset_color, width):

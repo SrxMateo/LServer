@@ -3,6 +3,8 @@ import subprocess
 import shutil
 import signal
 import re
+import stat
+import threading
 from lserver.state import add_node, remove_node, get_node, list_nodes, set_node_critical, set_node_backup
 from lserver.ui import log_success, log_info, log_error, error_exit
 
@@ -177,20 +179,33 @@ def start_node(name):
     try:
         log_file_path = os.path.join(path, "server.log")
         f_log = open(log_file_path, "a")
-        
+
+        # Crear FIFO (Named Pipe) para poder enviar comandos al servidor
+        fifo_path = os.path.join(path, "server.stdin")
+        if os.path.exists(fifo_path):
+            os.remove(fifo_path)
+        os.mkfifo(fifo_path)
+
+        # Abrir FIFO en modo lectura-escritura (O_RDWR no bloquea en Linux
+        # y mantiene la tubería viva aunque no haya escritores conectados)
+        fifo_fd = os.open(fifo_path, os.O_RDWR)
+
         process = subprocess.Popen(
             ["bash", "-c", start_cmd],
             cwd=path,
             stdout=f_log,
             stderr=subprocess.STDOUT,
-            stdin=subprocess.DEVNULL,
+            stdin=fifo_fd,
             start_new_session=True
         )
-        
+
+        # Cerrar nuestra copia del fd — el hijo tiene la suya propia via dup2
+        os.close(fifo_fd)
+
         pid_file = os.path.join(path, "server.pid")
         with open(pid_file, "w") as f:
             f.write(str(process.pid))
-            
+
         log_success(f"Nodo '{name}' arrancado en segundo plano (PID: {process.pid}).")
     except Exception as e:
         error_exit(f"Error al arrancar el nodo: {e}")
@@ -214,9 +229,14 @@ def stop_node(name):
         log_success(f"Nodo '{name}' detenido.")
     except OSError as e:
         error_exit(f"Fallo al intentar detener el nodo '{name}': {e}")
-    
+
     if os.path.exists(pid_file):
         os.remove(pid_file)
+
+    # Limpiar el FIFO de stdin
+    fifo_path = os.path.join(get_node(name)["path"], "server.stdin")
+    if os.path.exists(fifo_path):
+        os.remove(fifo_path)
 
 def kill_node(name):
     validate_node_name(name)
@@ -233,9 +253,14 @@ def kill_node(name):
             log_success(f"Señal SIGKILL enviada al proceso de '{name}'.")
         except OSError as e:
             log_error(f"Error al matar proceso: {e}")
-        
+
         if os.path.exists(pid_file):
             os.remove(pid_file)
+
+        # Limpiar el FIFO de stdin
+        fifo_path = os.path.join(get_node(name)["path"], "server.stdin")
+        if os.path.exists(fifo_path):
+            os.remove(fifo_path)
     else:
         log_info(f"El nodo '{name}' no estaba corriendo.")
 
@@ -244,23 +269,36 @@ def enter_node(name):
     node = get_node(name)
     if not node:
         error_exit(f"El nodo '{name}' no existe.")
-    
+
     if not is_running(name):
         error_exit(f"El nodo '{name}' no está corriendo. Inícialo primero con -p.")
-    
-    log_info(f"Mostrando consola en vivo de '{name}'. Haz scroll hacia arriba para ver el historial.")
-    log_info("Presiona Ctrl+C para salir.")
+
+    log_file_path = os.path.join(node["path"], "server.log")
+    fifo_path = os.path.join(node["path"], "server.stdin")
+
+    if not os.path.exists(fifo_path):
+        error_exit("Este nodo no tiene consola interactiva. Reinícialo con 'lserver -d' y luego 'lserver -p'.")
+
+    if not os.path.exists(log_file_path):
+        error_exit("El archivo de log aún no existe.")
+
+    log_info(f"Consola interactiva de '{name}'. Escribe comandos directamente.")
+    log_info("Presiona Ctrl+C para salir sin detener el servidor.")
+    print("")
+
+    # Lanzar tail en un hilo para mostrar la salida en tiempo real
+    tail_proc = subprocess.Popen(["tail", "-n", "100", "-f", log_file_path])
+
     try:
-        log_file_path = os.path.join(node["path"], "server.log")
-        if not os.path.exists(log_file_path):
-            error_exit("El archivo de log aún no existe.")
-        
-        # 'tail -n +1 -f' imprime desde la línea 1 hasta el final y se queda escuchando
-        subprocess.run(["tail", "-n", "+1", "-f", log_file_path])
-    except KeyboardInterrupt:
-        print("\nSaliendo del log en vivo.")
-    except Exception as e:
-        error_exit(f"Error al leer el log: {e}")
+        with open(fifo_path, "w") as fifo:
+            while True:
+                cmd = input()
+                fifo.write(cmd + "\n")
+                fifo.flush()
+    except (KeyboardInterrupt, EOFError):
+        tail_proc.terminate()
+        tail_proc.wait()
+        print("\nSaliendo de la consola interactiva.")
 
 def list_all_nodes():
     nodes = list_nodes()
