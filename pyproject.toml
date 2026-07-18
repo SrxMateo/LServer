@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lserver"
-version = "1.0.0"
-description = "Herramienta CLI para gestionar nodos en VPS con screen."
+version = "3.0.0"
+description = "CLI profesional para gestionar servidores en VPS. Zero dependencies."
 authors = [{ name = "SrxMateo" }]
 requires-python = ">=3.8"
 dependencies = []
@@ -14,4 +14,7 @@ dependencies = []
 lserver = "lserver.cli:main"
 
 [tool.setuptools]
-packages = ["lserver"]
+packages = ["lserver", "lserver.web"]
+
+[tool.setuptools.package-data]
+"lserver.web" = ["static/*.html", "static/**/*"]

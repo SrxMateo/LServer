@@ -28,9 +28,43 @@ class DBConnection:
                 path TEXT NOT NULL,
                 start_cmd TEXT DEFAULT './start.sh',
                 is_critical BOOLEAN DEFAULT 0,
-                backup_enabled BOOLEAN DEFAULT 0
+                backup_enabled BOOLEAN DEFAULT 0,
+                last_start REAL DEFAULT 0,
+                total_uptime REAL DEFAULT 0,
+                restart_time TEXT DEFAULT '',
+                node_group TEXT DEFAULT ''
             )
         ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS settings (
+                key TEXT PRIMARY KEY,
+                value TEXT
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS groups_nodes (
+                group_name TEXT,
+                node_name TEXT,
+                PRIMARY KEY(group_name, node_name)
+            )
+        ''')
+        self.conn.commit()
+        
+        # Migrar columnas nuevas si la tabla ya existía sin ellas
+        self._migrate_columns(cursor)
+    
+    def _migrate_columns(self, cursor):
+        """Añade columnas nuevas a tablas existentes sin romper datos."""
+        existing = {row[1] for row in cursor.execute("PRAGMA table_info(nodes)").fetchall()}
+        migrations = {
+            'last_start': 'REAL DEFAULT 0',
+            'total_uptime': 'REAL DEFAULT 0',
+            'restart_time': "TEXT DEFAULT ''",
+            'node_group': "TEXT DEFAULT ''"
+        }
+        for col, col_type in migrations.items():
+            if col not in existing:
+                cursor.execute(f"ALTER TABLE nodes ADD COLUMN {col} {col_type}")
         self.conn.commit()
         
     def execute(self, query, params=()):

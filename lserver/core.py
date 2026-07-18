@@ -5,12 +5,146 @@ import signal
 import re
 import stat
 import threading
-from lserver.state import add_node, remove_node, get_node, list_nodes, set_node_critical, set_node_backup
+import time
+from lserver.state import (add_node, remove_node, get_node, list_nodes,
+                           set_node_critical, set_node_backup,
+                           set_node_last_start, add_node_uptime,
+                           set_node_restart_time)
 from lserver.ui import log_success, log_info, log_error, error_exit
 
 def validate_node_name(name):
     if not re.match(r'^[a-zA-Z0-9_-]+$', name):
         error_exit("ERROR DE SEGURIDAD: El nombre del nodo contiene caracteres inválidos. Solo se permiten letras, números, guiones y guiones bajos.")
+
+# --- v3: Monitor de Recursos (lee /proc, 0 dependencias) ---
+def get_node_resources(pid):
+    """Retorna dict con cpu_percent y ram_mb leyendo /proc."""
+    result = {'cpu': '—', 'ram': '—'}
+    try:
+        # RAM: /proc/<pid>/status -> VmRSS
+        with open(f"/proc/{pid}/status", "r") as f:
+            for line in f:
+                if line.startswith("VmRSS:"):
+                    kb = int(line.split()[1])
+                    mb = kb / 1024
+                    if mb >= 1024:
+                        result['ram'] = f"{mb/1024:.1f}GB"
+                    else:
+                        result['ram'] = f"{mb:.0f}MB"
+                    break
+        
+        # CPU: /proc/<pid>/stat -> utime+stime vs /proc/uptime
+        with open(f"/proc/{pid}/stat", "r") as f:
+            parts = f.read().split()
+            utime = int(parts[13])
+            stime = int(parts[14])
+            total_ticks = utime + stime
+        
+        clk_tck = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
+        process_seconds = total_ticks / clk_tck
+        
+        with open(f"/proc/{pid}/stat", "r") as f:
+            starttime = int(f.read().split()[21])
+        
+        with open("/proc/uptime", "r") as f:
+            system_uptime = float(f.read().split()[0])
+        
+        process_start = starttime / clk_tck
+        elapsed = system_uptime - process_start
+        
+        if elapsed > 0:
+            cpu_pct = (process_seconds / elapsed) * 100
+            result['cpu'] = f"{cpu_pct:.1f}%"
+    except Exception:
+        pass
+    return result
+
+def get_node_ports(pid):
+    """Detecta puertos abiertos por el proceso leyendo /proc/net/tcp."""
+    ports = set()
+    try:
+        # Obtener todos los PIDs del grupo de procesos
+        pids = set()
+        pids.add(str(pid))
+        # Buscar hijos en /proc
+        for entry in os.listdir("/proc"):
+            if entry.isdigit():
+                try:
+                    with open(f"/proc/{entry}/stat", "r") as f:
+                        parts = f.read().split()
+                        ppid = parts[3]
+                        pgid = parts[4]
+                        if ppid == str(pid) or pgid == str(pid) or entry == str(pid):
+                            pids.add(entry)
+                except Exception:
+                    pass
+        
+        # Recopilar inodos de sockets de todos los PIDs
+        socket_inodes = set()
+        for p in pids:
+            fd_dir = f"/proc/{p}/fd"
+            try:
+                for fd in os.listdir(fd_dir):
+                    try:
+                        link = os.readlink(os.path.join(fd_dir, fd))
+                        if link.startswith("socket:["):
+                            inode = link[8:-1]
+                            socket_inodes.add(inode)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+        
+        # Mapear inodos a puertos en /proc/net/tcp y tcp6
+        for net_file in ["/proc/net/tcp", "/proc/net/tcp6"]:
+            try:
+                with open(net_file, "r") as f:
+                    for line in f.readlines()[1:]:
+                        parts = line.split()
+                        if len(parts) >= 10:
+                            inode = parts[9]
+                            state = parts[3]
+                            if inode in socket_inodes and state == "0A":  # 0A = LISTEN
+                                port_hex = parts[1].split(":")[1]
+                                port = int(port_hex, 16)
+                                if port > 0:
+                                    ports.add(port)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    
+    if ports:
+        return ",".join(f":{p}" for p in sorted(ports))
+    return "—"
+
+def format_uptime(seconds):
+    """Formatea segundos en formato legible (3d 12h 45m)."""
+    if seconds <= 0:
+        return "—"
+    days = int(seconds // 86400)
+    hours = int((seconds % 86400) // 3600)
+    mins = int((seconds % 3600) // 60)
+    
+    parts = []
+    if days > 0:
+        parts.append(f"{days}d")
+    if hours > 0:
+        parts.append(f"{hours}h")
+    parts.append(f"{mins}m")
+    return " ".join(parts)
+
+def get_current_uptime(name):
+    """Calcula el uptime actual de un nodo en ejecucion."""
+    node = get_node(name)
+    if not node:
+        return 0
+    total = node.get('total_uptime', 0) or 0
+    last_start = node.get('last_start', 0) or 0
+    if last_start > 0 and is_running(name):
+        total += time.time() - last_start
+    return total
+
 
 def toggle_critical(name):
     validate_node_name(name)
@@ -206,6 +340,9 @@ def start_node(name):
         with open(pid_file, "w") as f:
             f.write(str(process.pid))
 
+        # v3: Registrar timestamp de inicio para calcular uptime
+        set_node_last_start(name, time.time())
+
         log_success(f"Nodo '{name}' arrancado en segundo plano (PID: {process.pid}).")
     except Exception as e:
         error_exit(f"Error al arrancar el nodo: {e}")
@@ -220,6 +357,15 @@ def stop_node(name):
         return
 
     log_info(f"Deteniendo nodo '{name}' de forma segura...")
+
+    # v3: Acumular uptime antes de detener
+    node = get_node(name)
+    last_start = node.get('last_start', 0) or 0
+    if last_start > 0:
+        elapsed = time.time() - last_start
+        add_node_uptime(name, elapsed)
+        set_node_last_start(name, 0)
+
     pid_file = get_node_pid_file(name)
     with open(pid_file, "r") as f:
         pid = int(f.read().strip())
