@@ -1,5 +1,5 @@
 import sys
-
+import os
 # Codigos ANSI para colores
 GOLD = "\033[38;5;220m"
 ORANGE = "\033[38;5;208m"
