@@ -3,10 +3,12 @@ venv/
 env/
 .venv/
 
-# Nodos locales (Ignorar todas las carpetas sin extensión)
+# Nodos locales (Ignorar todas las carpetas sin extension)
 */
 !assets/
 !lserver/
+!lserver/web/
+!lserver/web/static/
 !lserver.egg-info/
 
 # Archivos de python
