@@ -184,6 +184,22 @@ def main():
     if args.create:
         name = args.create
         template = args.template
+        
+        from lserver.templates import list_templates, get_template_description
+        from lserver.ui import ORANGE, GOLD, RESET, GREEN, CYAN
+        
+        if not template:
+            print(f"\n{CYAN}¿Qué tipo de servidor deseas crear para '{name}'?{RESET}")
+            templates_avail = list_templates()
+            for i, tname in enumerate(templates_avail, 1):
+                desc = get_template_description(tname)
+                print(f"  {GOLD}{i}.{RESET} {ORANGE}{tname}{RESET} - {desc}")
+            print(f"  {GOLD}0.{RESET} Ninguno (Crear script básico vacío)")
+            
+            choice = input(f"\nElige una opción (0-{len(templates_avail)}): ").strip()
+            if choice.isdigit() and 1 <= int(choice) <= len(templates_avail):
+                template = templates_avail[int(choice)-1]
+        
         if template:
             from lserver.templates import get_template, list_templates
             if template not in list_templates():
@@ -207,7 +223,7 @@ def main():
             
             from lserver.state import add_node as state_add_node
             state_add_node(name, node_path, "./start.sh")
-            log_success(f"Nodo '{name}' creado con plantilla '{template}'.")
+            log_success(f"Nodo '{name}' creado con la plantilla '{template}'.")
         else:
             create_node(name)
         sys.exit(0)
