@@ -19,6 +19,20 @@ def create_group(name):
     # Insertamos un registro vacio para marcar el grupo como existente
     db.execute('INSERT OR IGNORE INTO groups_nodes (group_name, node_name) VALUES (?, ?)', (name, '__group_marker__'))
     log_success(f"Grupo '{name}' creado.")
+    
+    # Prompt interactivo
+    print("\n¿Deseas añadir nodos a este grupo ahora mismo?")
+    print("Ingresa los nombres de los nodos separados por coma (ej: lobby, survival) o presiona Enter para saltar.")
+    nodos_input = input("Nodos: ").strip()
+    if nodos_input:
+        nodos_lista = [n.strip() for n in nodos_input.split(",") if n.strip()]
+        for n in nodos_lista:
+            # Reusamos la logica, pero capturamos el SystemExit para no matar el programa si uno falla
+            from lserver.state import get_node
+            if get_node(n):
+                add_to_group(name, n)
+            else:
+                log_error(f"El nodo '{n}' no existe, omitiendo.")
 
 def delete_group(name):
     _validate_name(name)
@@ -38,7 +52,8 @@ def remove_from_group(group_name, node_name):
     _validate_name(group_name)
     _validate_name(node_name)
     db.execute('DELETE FROM groups_nodes WHERE group_name = ? AND node_name = ?', (group_name, node_name))
-    log_success(f"Nodo '{node_name}' removido del grupo '{group_name}'.")
+    log_success(f"Nodo '{node_name}' retirado del grupo '{group_name}'.")
+    log_info(f"Nota: Los archivos y la carpeta de '{node_name}' NO han sido borrados.")
 
 def get_group_nodes(group_name):
     rows = db.fetchall('SELECT node_name FROM groups_nodes WHERE group_name = ?', (group_name,))

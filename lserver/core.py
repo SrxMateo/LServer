@@ -436,6 +436,7 @@ def enter_node(name):
     tail_proc = subprocess.Popen(["tail", "-n", "100", "-f", log_file_path])
 
     try:
+        import readline # Habilita historial y teclas de flecha
         with open(fifo_path, "w") as fifo:
             while True:
                 cmd = input()

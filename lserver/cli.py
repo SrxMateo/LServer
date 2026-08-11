@@ -67,34 +67,18 @@ def main():
         print("Uso: lserver webhook set <url> | remove | test | status")
         sys.exit(1)
     
-    # lserver group create|add|remove|delete|start|stop|list
+    # lserver group -c <nombre> | lserver group list
     if cmd == "group":
-        from lserver.groups import (create_group, delete_group, add_to_group,
-                                     remove_from_group, start_group, stop_group, show_groups)
+        from lserver.groups import create_group, show_groups
         if len(sys.argv) > 2:
             sub = sys.argv[2]
-            if sub == "create" and len(sys.argv) > 3:
+            if sub == "-c" and len(sys.argv) > 3:
                 create_group(sys.argv[3])
-                sys.exit(0)
-            elif sub == "delete" and len(sys.argv) > 3:
-                delete_group(sys.argv[3])
-                sys.exit(0)
-            elif sub == "add" and len(sys.argv) > 4:
-                add_to_group(sys.argv[3], sys.argv[4])
-                sys.exit(0)
-            elif sub == "remove" and len(sys.argv) > 4:
-                remove_from_group(sys.argv[3], sys.argv[4])
-                sys.exit(0)
-            elif sub == "start" and len(sys.argv) > 3:
-                start_group(sys.argv[3])
-                sys.exit(0)
-            elif sub == "stop" and len(sys.argv) > 3:
-                stop_group(sys.argv[3])
                 sys.exit(0)
             elif sub == "list":
                 show_groups()
                 sys.exit(0)
-        print("Uso: lserver group create|delete|add|remove|start|stop|list <args>")
+        print("Uso: lserver group -c <nombre> | lserver group list")
         sys.exit(1)
     
     # lserver web start|stop|password
@@ -130,8 +114,34 @@ def main():
         run_web_server(port)
         sys.exit(0)
     
+    # Interceptar grupos: lserver -g <grupo> [-a|-s|--add|--remove]
+    if "-g" in sys.argv:
+        idx = sys.argv.index("-g")
+        if idx + 1 < len(sys.argv):
+            gname = sys.argv[idx + 1]
+            from lserver.groups import add_to_group, remove_from_group, start_group, stop_group
+            if "-a" in sys.argv:
+                stop_group(gname)
+                sys.exit(0)
+            elif "-s" in sys.argv:
+                start_group(gname)
+                sys.exit(0)
+            elif "--add" in sys.argv:
+                add_idx = sys.argv.index("--add")
+                if add_idx + 1 < len(sys.argv):
+                    add_to_group(gname, sys.argv[add_idx+1])
+                    sys.exit(0)
+            elif "--remove" in sys.argv:
+                rm_idx = sys.argv.index("--remove")
+                if rm_idx + 1 < len(sys.argv):
+                    remove_from_group(gname, sys.argv[rm_idx+1])
+                    sys.exit(0)
+            print(f"Grupo '{gname}'. Usa -a para detener, -s para iniciar, --add <nodo>, --remove <nodo>.")
+            sys.exit(1)
+
     # --- Flags con argparse ---
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-i', '--info', action='store_true', help='Wiki / Manual LServer')
     parser.add_argument('-p', '--start', metavar='NODO', help='Encender servidor')
     parser.add_argument('-d', '--stop', metavar='NODO', help='Detener el nodo')
     parser.add_argument('-k', '--kill', metavar='NODO', help='Matar el server')
@@ -152,6 +162,11 @@ def main():
 
     if args.run_daemon:
         run_daemon()
+        sys.exit(0)
+
+    if args.info:
+        from lserver.ui import print_wiki
+        print_wiki()
         sys.exit(0)
 
     if args.version:
