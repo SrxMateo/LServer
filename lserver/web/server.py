@@ -80,6 +80,8 @@ class LServerHandler(BaseHTTPRequestHandler):
             self._send_file(os.path.join(STATIC_DIR, 'index.html'), 'text/html; charset=utf-8')
         elif path == '/api/nodes':
             self._send_json(api.api_nodes())
+        elif path == '/api/groups':
+            self._send_json(api.api_groups())
         elif path.startswith('/api/logs/'):
             node_name = path.split('/api/logs/', 1)[1]
             self._send_json(api.api_logs(node_name))
@@ -113,6 +115,25 @@ class LServerHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/kill/'):
             node_name = path.split('/api/kill/', 1)[1]
             self._send_json(api.api_kill(node_name))
+        elif path.startswith('/api/group/start/'):
+            gname = path.split('/api/group/start/', 1)[1]
+            self._send_json(api.api_group_start(gname))
+        elif path.startswith('/api/group/stop/'):
+            gname = path.split('/api/group/stop/', 1)[1]
+            self._send_json(api.api_group_stop(gname))
+        elif path.startswith('/api/command/'):
+            node_name = path.split('/api/command/', 1)[1]
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                body = self.rfile.read(content_length)
+                try:
+                    data = json.loads(body)
+                    cmd = data.get('command', '')
+                    self._send_json(api.api_send_command(node_name, cmd))
+                except json.JSONDecodeError:
+                    self._send_json({'error': 'Invalid JSON'}, 400)
+            else:
+                self._send_json({'error': 'Missing body'}, 400)
         else:
             self._send_json({'error': 'Ruta no encontrada'}, 404)
     

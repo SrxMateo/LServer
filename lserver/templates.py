@@ -218,20 +218,62 @@ java -Xms1G -Xmx4G -jar server.jar nogui
 '''
     },
     'nodejs': {
-        'description': 'Aplicacion Node.js',
+        'description': 'Aplicación Node.js Básico',
         'content': '''#!/bin/bash
+# =========================================
+# Fue creado con mucho amor por SrxMateo & LumaxStudio
+# =========================================
+echo "Iniciando aplicacion Node.js..."
 node index.js
 '''
     },
     'python': {
-        'description': 'Aplicacion Python',
+        'description': 'Aplicación Python Básico',
         'content': '''#!/bin/bash
+# =========================================
+# Fue creado con mucho amor por SrxMateo & LumaxStudio
+# =========================================
+echo "Iniciando aplicacion Python..."
 python3 app.py
 '''
     },
-    'custom': {
-        'description': 'Plantilla vacia (personalizable)',
+    'nextjs': {
+        'description': 'Next.js (Producción)',
         'content': '''#!/bin/bash
+# =========================================
+# Fue creado con mucho amor por SrxMateo & LumaxStudio
+# =========================================
+echo "Construyendo e iniciando Next.js en Producción..."
+npm run build && npm start
+'''
+    },
+    'react-vite': {
+        'description': 'React / Vite (Producción Estática)',
+        'content': '''#!/bin/bash
+# =========================================
+# Fue creado con mucho amor por SrxMateo & LumaxStudio
+# =========================================
+echo "Construyendo e iniciando Vite/React..."
+npm run build && npx serve -s dist -l 3000
+'''
+    },
+    'fastapi': {
+        'description': 'Python FastAPI (Web API)',
+        'content': '''#!/bin/bash
+# =========================================
+# Fue creado con mucho amor por SrxMateo & LumaxStudio
+# =========================================
+echo "Iniciando servidor FastAPI..."
+# Instala fastapi y uvicorn si no lo tienes: pip install fastapi uvicorn
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+'''
+    },
+    'custom': {
+        'description': 'Plantilla vacía (personalizable)',
+        'content': '''#!/bin/bash
+# =========================================
+# Fue creado con mucho amor por SrxMateo & LumaxStudio
+# =========================================
 echo "Iniciando LServer Nodo..."
 while true; do sleep 1000; done
 '''

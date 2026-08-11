@@ -105,6 +105,34 @@
             color: var(--text-muted);
         }
 
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            background: rgba(255,255,255,0.03);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover { color: #fff; }
+        .tab-btn.active {
+            background: var(--brand-gradient);
+            color: var(--bg-base);
+            box-shadow: 0 2px 10px var(--brand-glow);
+        }
+
         .status-pill {
             background: var(--success-bg);
             border: 1px solid rgba(16, 185, 129, 0.2);
@@ -340,7 +368,7 @@
             background: var(--bg-surface);
             width: 90%;
             max-width: 1000px;
-            height: 80vh;
+            height: 85vh;
             border-radius: 16px;
             border: 1px solid var(--border);
             display: flex;
@@ -392,6 +420,32 @@
         }
         .log-body::-webkit-scrollbar { width: 8px; }
         .log-body::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        
+        /* Terminal Web Input */
+        .log-input-area {
+            border-top: 1px solid var(--border);
+            background: #000;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .log-input-area span {
+            color: var(--success);
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+        }
+        
+        .log-input-area input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            outline: none;
+        }
 
         /* Toasts Animados */
         .toast-container {
@@ -436,6 +490,7 @@
         @media (max-width: 768px) {
             .container { padding: 1.5rem 1rem; }
             .grid { grid-template-columns: 1fr; }
+            .tabs { display: none; /* Simplificado para móviles o cambiar diseño */ }
         }
     </style>
 </head>
@@ -449,25 +504,44 @@
                 <p>Infrastructure Management</p>
             </div>
         </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-nodes" onclick="switchTab('nodes')">Nodos</button>
+            <button class="tab-btn" id="tab-groups" onclick="switchTab('groups')">Grupos</button>
+        </div>
+        
         <div class="status-pill" id="connStatus">
             Connected
         </div>
     </nav>
 
     <main class="container">
-        <div class="page-header">
-            <h2 class="page-title">Instancias Activas</h2>
-            <p class="page-subtitle">Monitoreo en tiempo real de recursos y servicios</p>
+        <!-- VISTA DE NODOS -->
+        <div id="view-nodes">
+            <div class="page-header">
+                <h2 class="page-title">Instancias Activas</h2>
+                <p class="page-subtitle">Monitoreo en tiempo real de recursos y servicios web / juegos</p>
+            </div>
+            <div class="grid" id="nodesGrid">
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
         </div>
 
-        <div class="grid" id="nodesGrid">
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
+        <!-- VISTA DE GRUPOS -->
+        <div id="view-groups" style="display: none;">
+            <div class="page-header">
+                <h2 class="page-title">Redes y Clusters</h2>
+                <p class="page-subtitle">Control masivo para múltiples servidores y arquitecturas complejas</p>
+            </div>
+            <div class="grid" id="groupsGrid">
+                <!-- Se llenará vía JS -->
+            </div>
         </div>
     </main>
 
-    <!-- Modal Logs -->
+    <!-- Modal Logs y Terminal Web -->
     <div class="modal-overlay" id="logModal" onclick="if(event.target === this) closeLog()">
         <div class="log-window">
             <div class="log-header">
@@ -479,6 +553,10 @@
             <div class="log-body" id="logContent">
                 Esperando datos...
             </div>
+            <div class="log-input-area">
+                <span>></span>
+                <input type="text" id="termInput" placeholder="Escribe un comando y presiona Enter..." autocomplete="off">
+            </div>
         </div>
     </div>
 
@@ -487,6 +565,23 @@
     <script>
         let logInterval = null;
         let currentLogNode = null;
+        let currentTab = 'nodes';
+        
+        // Historial de comandos para la flecha arriba
+        const cmdHistory = [];
+        let historyIdx = -1;
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('view-nodes').style.display = tab === 'nodes' ? 'block' : 'none';
+            document.getElementById('view-groups').style.display = tab === 'groups' ? 'block' : 'none';
+            
+            document.getElementById('tab-nodes').classList.toggle('active', tab === 'nodes');
+            document.getElementById('tab-groups').classList.toggle('active', tab === 'groups');
+            
+            if (tab === 'nodes') fetchNodes();
+            else fetchGroups();
+        }
 
         function showToast(msg, type = 'success') {
             const container = document.getElementById('toasts');
@@ -507,19 +602,37 @@
         }
 
         async function fetchNodes() {
+            if (currentTab !== 'nodes') return;
             try {
                 const res = await fetch('/api/nodes');
                 const data = await res.json();
-                
-                const status = document.getElementById('connStatus');
+                setConnected(true);
+                renderNodes(data.nodes || []);
+            } catch (e) {
+                setConnected(false);
+            }
+        }
+        
+        async function fetchGroups() {
+            if (currentTab !== 'groups') return;
+            try {
+                const res = await fetch('/api/groups');
+                const data = await res.json();
+                setConnected(true);
+                renderGroups(data.groups || []);
+            } catch (e) {
+                setConnected(false);
+            }
+        }
+
+        function setConnected(isConnected) {
+            const status = document.getElementById('connStatus');
+            if(isConnected) {
                 status.innerHTML = 'Connected';
                 status.style.color = 'var(--success)';
                 status.style.borderColor = 'rgba(16,185,129,0.2)';
                 status.style.background = 'var(--success-bg)';
-                
-                renderNodes(data.nodes || []);
-            } catch (e) {
-                const status = document.getElementById('connStatus');
+            } else {
                 status.innerHTML = 'Offline';
                 status.style.color = 'var(--text-muted)';
                 status.style.borderColor = 'var(--border)';
@@ -577,25 +690,68 @@
 
                     <div class="actions">
                         ${n.status === 'offline' 
-                            ? `<button class="btn btn-primary" onclick="action('start', '${n.name}')">
+                            ? `<button class="btn btn-primary" onclick="actionNode('start', '${n.name}')">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg> Arrancar
                                </button>`
-                            : `<button class="btn btn-secondary" onclick="action('stop', '${n.name}')">
+                            : `<button class="btn btn-secondary" onclick="actionNode('stop', '${n.name}')">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg> Detener
                                </button>`
                         }
                         <button class="btn btn-secondary" onclick="openLog('${n.name}')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h13.4a.5.5 0 0 1 .49.61l-1.5 8.39A2 2 0 0 1 16.43 14H6"/><path d="M4 19v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></svg>
-                        </button>
-                        <button class="btn btn-danger" onclick="if(confirm('¿Forzar cierre (Kill) de ${n.name}?')) action('kill', '${n.name}')" title="Forzar detención">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h13.4a.5.5 0 0 1 .49.61l-1.5 8.39A2 2 0 0 1 16.43 14H6"/><path d="M4 19v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></svg> Terminal
                         </button>
                     </div>
                 </div>
             `).join('');
         }
 
-        async function action(type, name) {
+        function renderGroups(groups) {
+            const grid = document.getElementById('groupsGrid');
+            if (groups.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem; border: 1px dashed var(--border); border-radius: 16px;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" stroke-width="1.5" style="margin-bottom:1rem;">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+                        </svg>
+                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No tienes redes configuradas</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Agrupa servidores con: lserver -g &lt;nombre&gt; -c</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = groups.map(g => {
+                const allOnline = g.active === g.total && g.total > 0;
+                return `
+                <div class="card ${allOnline ? 'online' : 'offline'}">
+                    <div class="card-header">
+                        <div class="node-info">
+                            <h2>${g.name}</h2>
+                            <p style="color: var(--text-muted); font-size: 0.8rem;">${g.total} Nodos en este cluster</p>
+                        </div>
+                        <div class="state-badge ${g.active > 0 ? 'state-online' : 'state-offline'}">
+                            ${g.active} / ${g.total} ONLINE
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
+                            Nodos: <span style="color:#fff">${g.nodes.join(', ')}</span>
+                        </p>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="actionGroup('start', '${g.name}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg> Arrancar Todos
+                        </button>
+                        <button class="btn btn-danger" onclick="if(confirm('¿Detener el cluster ${g.name}?')) actionGroup('stop', '${g.name}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg> Apagar Todos
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        async function actionNode(type, name) {
             try {
                 const res = await fetch(`/api/${type}/${name}`, { method: 'POST' });
                 const data = await res.json();
@@ -608,14 +764,33 @@
                 showToast('Error de conexión', 'error');
             }
         }
+        
+        async function actionGroup(type, name) {
+            try {
+                showToast(`Enviando señal de ${type} al grupo...`, 'success');
+                const res = await fetch(`/api/group/${type}/${name}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.error) showToast(data.error, 'error');
+                else {
+                    showToast(data.message, 'success');
+                    fetchGroups();
+                }
+            } catch (e) {
+                showToast('Error de conexión', 'error');
+            }
+        }
 
         async function openLog(name) {
             currentLogNode = name;
             const modal = document.getElementById('logModal');
             document.getElementById('logNodeName').textContent = name;
+            document.getElementById('termInput').value = '';
             modal.classList.add('active');
             await updateLog();
             logInterval = setInterval(updateLog, 2000);
+            
+            // Foco en el input
+            setTimeout(() => document.getElementById('termInput').focus(), 100);
         }
 
         function closeLog() {
@@ -624,6 +799,16 @@
             clearInterval(logInterval);
         }
 
+        let isUserScrolling = false;
+        document.getElementById('logContent').addEventListener('scroll', function() {
+            const el = this;
+            if (el.scrollHeight - el.scrollTop - el.clientHeight > 10) {
+                isUserScrolling = true;
+            } else {
+                isUserScrolling = false;
+            }
+        });
+
         async function updateLog() {
             if (!currentLogNode) return;
             try {
@@ -631,12 +816,65 @@
                 const data = await res.json();
                 const content = document.getElementById('logContent');
                 content.textContent = data.logs || data.error || 'Sin registros.';
-                content.scrollTop = content.scrollHeight;
+                
+                // Auto scroll solo si el usuario no hizo scroll arriba
+                if (!isUserScrolling) {
+                    content.scrollTop = content.scrollHeight;
+                }
             } catch (e) {}
         }
+        
+        // --- Web Terminal Logic ---
+        document.getElementById('termInput').addEventListener('keydown', async function(e) {
+            if (e.key === 'Enter') {
+                const cmd = this.value.trim();
+                if (!cmd || !currentLogNode) return;
+                
+                // Guardar historial
+                if(cmdHistory[cmdHistory.length-1] !== cmd) {
+                    cmdHistory.push(cmd);
+                }
+                historyIdx = cmdHistory.length;
+                this.value = ''; // Limpiar
+                
+                try {
+                    const res = await fetch(`/api/command/${currentLogNode}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ command: cmd })
+                    });
+                    const data = await res.json();
+                    if(data.error) showToast(data.error, 'error');
+                    else setTimeout(updateLog, 500); // Forzar actualización rápida
+                } catch(err) {
+                    showToast('Error enviando comando', 'error');
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIdx > 0) {
+                    historyIdx--;
+                    this.value = cmdHistory[historyIdx];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIdx < cmdHistory.length - 1) {
+                    historyIdx++;
+                    this.value = cmdHistory[historyIdx];
+                } else {
+                    historyIdx = cmdHistory.length;
+                    this.value = '';
+                }
+            }
+        });
 
-        fetchNodes();
-        setInterval(fetchNodes, 3000);
+        // Polling unificado
+        setInterval(() => {
+            if (currentTab === 'nodes') fetchNodes();
+            else fetchGroups();
+        }, 3000);
+        
+        // Initial load
+        switchTab('nodes');
     </script>
 </body>
 </html>

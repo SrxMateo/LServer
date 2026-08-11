@@ -95,3 +95,58 @@ def api_logs(node_name):
         return {'logs': ''.join(last_lines)}
     except Exception as e:
         return {'error': str(e)}
+
+def api_send_command(node_name, command):
+    try:
+        from lserver.state import get_node
+        from lserver.core import is_running
+        node = get_node(node_name)
+        if not node:
+            return {'error': f"Nodo '{node_name}' no existe."}
+        if not is_running(node_name):
+            return {'error': f"Nodo '{node_name}' no está encendido."}
+        
+        fifo_path = os.path.join(node['path'], 'server.stdin')
+        if not os.path.exists(fifo_path):
+            return {'error': "El canal de entrada (FIFO) no existe."}
+            
+        with open(fifo_path, 'w') as f:
+            f.write(command + '\n')
+            
+        return {'status': 'ok'}
+    except Exception as e:
+        return {'error': str(e)}
+
+def api_groups():
+    try:
+        from lserver.groups import list_groups
+        from lserver.core import is_running
+        groups_data = list_groups()
+        result = []
+        for gname, nodes in groups_data.items():
+            active = sum(1 for n in nodes if is_running(n))
+            result.append({
+                'name': gname,
+                'nodes': nodes,
+                'active': active,
+                'total': len(nodes)
+            })
+        return {'groups': result}
+    except Exception as e:
+        return {'error': str(e)}
+
+def api_group_start(group_name):
+    try:
+        from lserver.groups import start_group
+        start_group(group_name)
+        return {'status': 'ok', 'message': f"Grupo '{group_name}' arrancado."}
+    except Exception as e:
+        return {'error': str(e)}
+
+def api_group_stop(group_name):
+    try:
+        from lserver.groups import stop_group
+        stop_group(group_name)
+        return {'status': 'ok', 'message': f"Grupo '{group_name}' detenido."}
+    except Exception as e:
+        return {'error': str(e)}
