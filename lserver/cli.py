@@ -182,26 +182,31 @@ def main():
     if args.translate:
         lang = args.translate.lower()
         if lang == 'prompt':
-            print("Elige tu idioma / Choose your language:")
+            print("Elige tu idioma / Choose your language / Escolha seu idioma / Choisissez votre langue:")
             print("  1. Español (es)")
             print("  2. English (en)")
-            ans = input(">> ").strip()
-            if ans == '1' or ans.lower() == 'es':
-                lang = 'es'
-            elif ans == '2' or ans.lower() == 'en':
-                lang = 'en'
-            else:
-                lang = 'es'
+            print("  3. Português (pt)")
+            print("  4. Français (fr)")
+            ans = input(">> ").strip().lower()
+            if ans in ['1', 'es']: lang = 'es'
+            elif ans in ['2', 'en']: lang = 'en'
+            elif ans in ['3', 'pt']: lang = 'pt'
+            elif ans in ['4', 'fr']: lang = 'fr'
+            else: lang = 'es'
                 
-        if lang not in ["es", "en"]:
+        if lang not in ["es", "en", "pt", "fr"]:
             from lserver.ui import error_exit
-            error_exit("Idioma no soportado / Language not supported. Usa: es | en")
+            error_exit("Idioma no soportado / Language not supported. Usa: es | en | pt | fr")
             
         from lserver.state import set_setting
         from lserver.ui import log_success
         set_setting("language", lang)
         if lang == "en":
             log_success("Language updated to English. Use 'lserver -i' to read the Wiki.")
+        elif lang == "pt":
+            log_success("Idioma atualizado para Português. Use 'lserver -i' para ler a Wiki.")
+        elif lang == "fr":
+            log_success("Langue mise à jour en Français. Utilisez 'lserver -i' pour lire le Wiki.")
         else:
             log_success("Idioma actualizado a Español. Usa 'lserver -i' para leer la Wiki.")
         sys.exit(0)
