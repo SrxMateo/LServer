@@ -171,7 +171,7 @@ def main():
     parser.add_argument('-b', '--backup', metavar='NODO', help='Gestion de Backups')
     parser.add_argument('-r', '--restart', metavar='NODO', help='Reinicio programado')
     parser.add_argument('-o', '--open', metavar='NODO', help='Editar start.sh')
-    parser.add_argument('-t', '--translate', metavar='LANG', help='Cambiar idioma (es|en)')
+    parser.add_argument('-t', '--translate', nargs='?', const='prompt', metavar='LANG', help='Cambiar idioma (es|en)')
     parser.add_argument('-v', '--version', action='store_true', help='Version')
     parser.add_argument('-h', '--help', action='store_true', help='Ayuda')
     parser.add_argument('--run-daemon', action='store_true', help=argparse.SUPPRESS)
@@ -181,16 +181,29 @@ def main():
 
     if args.translate:
         lang = args.translate.lower()
+        if lang == 'prompt':
+            print("Elige tu idioma / Choose your language:")
+            print("  1. Español (es)")
+            print("  2. English (en)")
+            ans = input(">> ").strip()
+            if ans == '1' or ans.lower() == 'es':
+                lang = 'es'
+            elif ans == '2' or ans.lower() == 'en':
+                lang = 'en'
+            else:
+                lang = 'es'
+                
         if lang not in ["es", "en"]:
             from lserver.ui import error_exit
-            error_exit("Idioma no soportado. Usa: es | en")
+            error_exit("Idioma no soportado / Language not supported. Usa: es | en")
+            
         from lserver.state import set_setting
         from lserver.ui import log_success
         set_setting("language", lang)
         if lang == "en":
-            log_success("Language updated to English.")
+            log_success("Language updated to English. Use 'lserver -i' to read the Wiki.")
         else:
-            log_success("Idioma actualizado a Español.")
+            log_success("Idioma actualizado a Español. Usa 'lserver -i' para leer la Wiki.")
         sys.exit(0)
 
     if args.run_daemon:

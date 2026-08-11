@@ -62,6 +62,7 @@ def print_dashboard(nodes, is_running_func):
     print_box_line(f"  {GOLD}lserver daemon stop{RESET}  {ORANGE}Detiene el vigilante.{RESET}", 44)
     print_box_line(f"  {GOLD}lserver web start{RESET}    {ORANGE}Abre el panel web privado.{RESET}", 45)
     print_box_line(f"  {GOLD}lserver update{RESET}       {ORANGE}Buscar actualizaciones de LServer.{RESET}", 51)
+    print_box_line(f"  {GOLD}lserver -t [lang]{RESET}    {ORANGE}Cambiar idioma interactivo (es/en).{RESET}", 55)
     print_box_line(f"  {GOLD}lserver -l{RESET}           {ORANGE}Mostrar Dashboard con nodos creados.{RESET}", 59)
     print_box_line(f"  {GOLD}lserver -v{RESET}           {ORANGE}Mostrar la version de LServer.{RESET}", 53)
     print(f"{c_border}╠══════════════════════════════════════════════════════════════════════════════╣{RESET}")
@@ -173,6 +174,7 @@ def print_wiki():
         print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Daily Restart:       {ORANGE}lserver -r <node> HH:MM{RESET} ⏰ (Ex: {GRAY}lserver -r lobby 04:00{RESET}{WHITE}){RESET}")
         print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Edit start.sh:       {ORANGE}lserver -o <node>{RESET} ✏️{RESET}")
         print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Start Daemon:        {GOLD}lserver daemon start{RESET} 🛡️ (Required for Auto-Heal/Restarts){RESET}")
+        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Change Language:     {GOLD}lserver -t{RESET} 🌐 (Interactive language prompt){RESET}")
         print(f"{LIGHT_ORANGE}║{RESET}")
         
         print(f"{LIGHT_ORANGE}║{RESET} {CYAN}4. WEBHOOK ALERTS (DISCORD/TELEGRAM) 🔔{RESET}")
@@ -211,6 +213,7 @@ def print_wiki():
         print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Reinicio Diario:     {ORANGE}lserver -r <nodo> HH:MM{RESET} ⏰ (Ej: {GRAY}lserver -r lobby 04:00{RESET}{WHITE}){RESET}")
         print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Editar start.sh:     {ORANGE}lserver -o <nodo>{RESET} ✏️{RESET}")
         print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Activar Vigilante:   {GOLD}lserver daemon start{RESET} 🛡️ (Requerido para Auto-Heal/Reinicios){RESET}")
+        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Cambiar Idioma:      {GOLD}lserver -t{RESET} 🌐 (Selector de idioma interactivo){RESET}")
         print(f"{LIGHT_ORANGE}║{RESET}")
         
         # Seccion 4: Alertas
