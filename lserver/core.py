@@ -432,8 +432,32 @@ def enter_node(name):
     log_info("Presiona Ctrl+C para salir sin detener el servidor.")
     print("")
 
-    # Lanzar tail en un hilo para mostrar la salida en tiempo real
-    tail_proc = subprocess.Popen(["tail", "-n", "100", "-f", log_file_path])
+    import threading
+    import sys
+    import re
+    from lserver.ui import RED, YELLOW, GREEN, GRAY, RESET
+
+    # Lanzar tail capturando su stdout
+    tail_proc = subprocess.Popen(["tail", "-n", "100", "-f", log_file_path], stdout=subprocess.PIPE, text=True, bufsize=1)
+
+    def tail_reader():
+        color_map = {
+            r'(?i)\[?(error|err|failed|fatal|exception)\]?:?': RED,
+            r'(?i)\[?(warn|warning)\]?:?': YELLOW,
+            r'(?i)\[?(info|success|ok)\]?:?': GREEN,
+            r'(?i)\[?(debug)\]?:?': GRAY,
+        }
+        for line in iter(tail_proc.stdout.readline, ''):
+            colored_line = line
+            for pattern, color in color_map.items():
+                if re.search(pattern, line):
+                    colored_line = f"{color}{line.strip()}{RESET}\n"
+                    break
+            sys.stdout.write(colored_line)
+            sys.stdout.flush()
+
+    reader_thread = threading.Thread(target=tail_reader, daemon=True)
+    reader_thread.start()
 
     try:
         import readline # Habilita historial y teclas de flecha
