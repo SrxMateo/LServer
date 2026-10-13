@@ -10,7 +10,7 @@ from lserver.state import (add_node, remove_node, get_node, list_nodes,
                            set_node_critical, set_node_backup,
                            set_node_last_start, add_node_uptime,
                            set_node_restart_time)
-from lserver.ui import log_success, log_info, log_error, error_exit
+from lserver.ui import log_success, log_info, log_error, log_warn, error_exit, print_menu
 
 def validate_node_name(name):
     if not re.match(r'^[a-zA-Z0-9_-]+$', name):
@@ -163,14 +163,18 @@ def handle_backup(name):
     if not node:
         log_error(f"El nodo '{name}' no existe.")
         return
-    
-    print(f"\n\033[38;5;220mOpciones de Backup para el nodo '{name}':\033[0m")
-    print("1) Backup Manual (Crear copia de seguridad ahora mismo)")
-    print("2) Backup Automático (Cada 24h a las 03:00 AM)")
-    print("3) Desactivar Backup Automático")
-    print("0) Cancelar\n")
-    
-    ans = input("Elige una opción (0-3): ")
+
+    from lserver.ui import print_menu
+    ans = print_menu(
+        title="Opciones de Backup",
+        options=[
+            ("1", "Backup Manual  —  Crear copia de seguridad ahora mismo"),
+            ("2", "Auto-Backup    —  Activar (cada 24h a las 03:00 AM)"),
+            ("3", "Auto-Backup    —  Desactivar copia automática"),
+            ("0", "Cancelar"),
+        ],
+        node_name=name
+    )
     if ans == "1":
         create_manual_backup(name, node['path'])
     elif ans == "2":
@@ -178,7 +182,7 @@ def handle_backup(name):
         log_success(f"Auto-Backups 24H ACTIVADOS para '{name}'.")
     elif ans == "3":
         set_node_backup(name, False)
-        log_success(f"Auto-Backups 24H DESACTIVADOS para '{name}'.")
+        log_success(f"Auto-Backups DESACTIVADOS para '{name}'.")
     else:
         log_info("Operación cancelada.")
 
@@ -428,9 +432,14 @@ def enter_node(name):
     if not os.path.exists(log_file_path):
         error_exit("El archivo de log aún no existe.")
 
-    log_info(f"Consola interactiva de '{name}'. Escribe comandos directamente.")
-    log_info("Presiona Ctrl+C para salir sin detener el servidor.")
-    print("")
+    from lserver.ui import GOLD, ORANGE, LIGHT_ORANGE, GRAY, RESET, BOLD
+    log_info(f"Conectando a la consola de '{name}'...")
+    log_info("Escribe comandos directamente. Presiona Ctrl+C para salir.")
+    print(f"""
+{LIGHT_ORANGE}┌────────────────────────────────────────────────────────────────────────────┐{RESET}
+{LIGHT_ORANGE}│{RESET}  {GOLD}⚡ CONSOLA INTERACTIVA{RESET}  {GRAY}nodo: {ORANGE}{name}{RESET}{' ' * max(0, 52 - len(name))}{LIGHT_ORANGE}│{RESET}
+{LIGHT_ORANGE}└────────────────────────────────────────────────────────────────────────────┘{RESET}
+""")
 
     import threading
     import sys
@@ -461,15 +470,16 @@ def enter_node(name):
 
     try:
         import readline # Habilita historial y teclas de flecha
+        prompt = f"{ORANGE}[{name}]{RESET} {GOLD}➜{RESET} "
         with open(fifo_path, "w") as fifo:
             while True:
-                cmd = input()
+                cmd = input(prompt)
                 fifo.write(cmd + "\n")
                 fifo.flush()
     except (KeyboardInterrupt, EOFError):
         tail_proc.terminate()
         tail_proc.wait()
-        print("\nSaliendo de la consola interactiva.")
+        print(f"\n{LIGHT_ORANGE}─── Saliste de la consola de '{name}'. El servidor sigue corriendo. ───{RESET}\n")
 
 def list_all_nodes():
     nodes = list_nodes()

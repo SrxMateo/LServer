@@ -1,17 +1,26 @@
 import sys
 import os
+import re
 # Codigos ANSI para colores
 GOLD = "\033[38;5;220m"
 ORANGE = "\033[38;5;208m"
 LIGHT_ORANGE = "\033[38;5;214m"
 YELLOW = "\033[38;5;226m"
 GREEN = "\033[1;32m"
+DARK_GREEN = "\033[38;5;34m"
 BLUE = "\033[1;34m"
 RED = "\033[1;31m"
+DARK_RED = "\033[38;5;196m"
 CYAN = "\033[36m"
 GRAY = "\033[90m"
 WHITE = "\033[97m"
+BOLD = "\033[1m"
 RESET = "\033[0m"
+
+BG_GREEN   = "\033[48;5;22m"
+BG_RED     = "\033[48;5;52m"
+BG_ORANGE  = "\033[48;5;130m"
+BG_GRAY    = "\033[48;5;236m"
 
 def print_dashboard(nodes, is_running_func):
     from lserver.core import get_node_resources, get_node_ports, get_current_uptime, format_uptime
@@ -356,15 +365,87 @@ def print_help():
     from lserver.core import list_all_nodes
     list_all_nodes()
 
+
+def _clean(text):
+    """Elimina codigos ANSI para calcular longitud real."""
+    return re.sub(r'\033\[[0-9;]*m', '', text)
+
+
 def log_success(msg):
-    print(f"{GREEN}[SUCCESS]{RESET} {msg}")
+    """Mensaje de exito con icono verde y linea decorativa."""
+    prefix = f"{BG_GREEN}{BOLD} ✔ OK {RESET}"
+    print(f"{prefix}  {GREEN}{BOLD}{msg}{RESET}")
+
 
 def log_info(msg):
-    print(f"{WHITE}[INFO]{RESET} {msg}")
+    """Mensaje informativo con icono naranja."""
+    prefix = f"{BG_ORANGE}{BOLD} ℹ  {RESET}"
+    print(f"{prefix}  {LIGHT_ORANGE}{msg}{RESET}")
+
+
+def log_warn(msg):
+    """Mensaje de advertencia con icono amarillo."""
+    prefix = f"{YELLOW}{BOLD} ⚠  WARN {RESET}"
+    print(f"{prefix} {YELLOW}{msg}{RESET}")
+
 
 def log_error(msg):
-    print(f"{RED}[ERROR]{RESET} {msg}")
+    """Mensaje de error con icono rojo prominente."""
+    prefix = f"{BG_RED}{BOLD} ✖ ERROR {RESET}"
+    print(f"{prefix} {RED}{BOLD}{msg}{RESET}")
+
 
 def error_exit(msg):
-    log_error(msg)
+    """Error fatal con caja visual antes de salir."""
+    width = 68
+    print(f"\n{RED}╔{'═' * width}╗{RESET}")
+    # Dividir el mensaje si es muy largo
+    words = msg.split()
+    lines = []
+    current = ""
+    for w in words:
+        if len(current) + len(w) + 1 <= width - 4:
+            current = (current + " " + w).strip()
+        else:
+            lines.append(current)
+            current = w
+    if current:
+        lines.append(current)
+    for line in lines:
+        padding = width - 2 - len(line)
+        print(f"{RED}║{RESET} {BOLD}{RED}{line}{RESET}{' ' * padding} {RED}║{RESET}")
+    print(f"{RED}╚{'═' * width}╝{RESET}\n")
     sys.exit(1)
+
+
+def print_menu(title, options, node_name=None):
+    """
+    Imprime un menu interactivo con estilo LServer.
+    options: lista de (key, label) ej. [("1", "Backup manual"), ("0", "Cancelar")]
+    """
+    width = 54
+    c = LIGHT_ORANGE
+    # Header
+    if node_name:
+        header = f"  {GOLD}⚡ {title}{RESET} {GRAY}[{node_name}]{RESET}"
+    else:
+        header = f"  {GOLD}⚡ {title}{RESET}"
+    print(f"\n{c}╔{'═' * width}╗{RESET}")
+    pad = width - len(_clean(header)) - 1
+    print(f"{c}║{RESET}{header}{' ' * max(0,pad)}{c}║{RESET}")
+    print(f"{c}╠{'═' * width}╣{RESET}")
+    for key, label in options:
+        if key == "0":
+            key_color = GRAY
+            label_color = GRAY
+        else:
+            key_color = GOLD
+            label_color = WHITE
+        row = f"  {key_color}[{key}]{RESET}  {label_color}{label}{RESET}"
+        pad = width - len(_clean(row)) - 1
+        print(f"{c}║{RESET}{row}{' ' * max(0,pad)}{c}║{RESET}")
+    print(f"{c}╚{'═' * width}╝{RESET}")
+    # Prompt con estilo
+    if node_name:
+        return input(f"\n  {GOLD}➤{RESET}  Opción: ")
+    return input(f"\n  {GOLD}➤{RESET}  Opción: ")
