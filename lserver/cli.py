@@ -67,18 +67,59 @@ def main():
         print("Uso: lserver webhook set <url> | remove | test | status")
         sys.exit(1)
     
-    # lserver group -c <nombre> | lserver group list
+    # lserver group [create|start|stop|add|remove|delete|list]
     if cmd == "group":
-        from lserver.groups import create_group, show_groups
-        if len(sys.argv) > 2:
-            sub = sys.argv[2]
-            if sub == "-c" and len(sys.argv) > 3:
-                create_group(sys.argv[3])
-                sys.exit(0)
-            elif sub == "list":
-                show_groups()
-                sys.exit(0)
-        print("Uso: lserver group -c <nombre> | lserver group list")
+        from lserver.groups import (
+            create_group, delete_group, show_groups, start_group,
+            stop_group, add_to_group, remove_from_group,
+            interactive_group_menu
+        )
+        sub = sys.argv[2] if len(sys.argv) > 2 else None
+
+        if sub is None:
+            # Sin argumentos → menú interactivo
+            interactive_group_menu()
+            sys.exit(0)
+        elif sub == "create" and len(sys.argv) > 3:
+            create_group(sys.argv[3])
+            sys.exit(0)
+        elif sub == "list":
+            show_groups()
+            sys.exit(0)
+        elif sub == "start" and len(sys.argv) > 3:
+            start_group(sys.argv[3])
+            sys.exit(0)
+        elif sub == "stop" and len(sys.argv) > 3:
+            stop_group(sys.argv[3])
+            sys.exit(0)
+        elif sub == "add" and len(sys.argv) > 4:
+            add_to_group(sys.argv[3], sys.argv[4])
+            sys.exit(0)
+        elif sub == "remove" and len(sys.argv) > 4:
+            remove_from_group(sys.argv[3], sys.argv[4])
+            sys.exit(0)
+        elif sub == "delete" and len(sys.argv) > 3:
+            delete_group(sys.argv[3])
+            sys.exit(0)
+        # Ayuda del subcomando
+        from lserver.ui import GOLD, ORANGE, LIGHT_ORANGE, GRAY, RESET, WHITE
+        print(f"\n{LIGHT_ORANGE}╔══════════════════════════════════════════════════════╗{RESET}")
+        print(f"{LIGHT_ORANGE}║{RESET}  {GOLD}⚡ USO DE GRUPOS  — lserver group <subcomando>{RESET}     {LIGHT_ORANGE}║{RESET}")
+        print(f"{LIGHT_ORANGE}╠══════════════════════════════════════════════════════╣{RESET}")
+        cmds_help = [
+            ("group",                 "Abrir menú interactivo de grupos"),
+            ("group list",            "Ver todos los grupos y su estado"),
+            ("group create <nombre>",  "Crear un nuevo grupo"),
+            ("group add <g> <nodo>",  "Agregar nodo a un grupo"),
+            ("group remove <g> <n>",  "Quitar nodo de un grupo"),
+            ("group start <nombre>",  "Encender todos los nodos del grupo"),
+            ("group stop  <nombre>",  "Apagar todos los nodos del grupo"),
+            ("group delete <nombre>",  "Eliminar el grupo (no borra nodos)"),
+        ]
+        for c, desc in cmds_help:
+            row = f"  {GOLD}lserver {c:<26}{RESET} {GRAY}{desc}{RESET}"
+            print(f"{LIGHT_ORANGE}║{RESET}{row}")
+        print(f"{LIGHT_ORANGE}╚══════════════════════════════════════════════════════╝{RESET}\n")
         sys.exit(1)
     
     # lserver web start|stop|password
@@ -132,7 +173,8 @@ def main():
         print("Uso: lserver config lang <es|en>")
         sys.exit(1)
 
-    # Interceptar grupos: lserver -g <grupo> [-a|-s|--add|--remove]
+    # Compatibilidad legado: lserver -g <grupo> [-a|-s|--add|--remove]
+    # (redirige al nuevo sistema silenciosamente)
     if "-g" in sys.argv:
         idx = sys.argv.index("-g")
         if idx + 1 < len(sys.argv):
@@ -154,8 +196,6 @@ def main():
                 if rm_idx + 1 < len(sys.argv):
                     remove_from_group(gname, sys.argv[rm_idx+1])
                     sys.exit(0)
-            print(f"Grupo '{gname}'. Usa -a para detener, -s para iniciar, --add <nodo>, --remove <nodo>.")
-            sys.exit(1)
 
     # --- Flags con argparse ---
     parser = argparse.ArgumentParser(add_help=False)

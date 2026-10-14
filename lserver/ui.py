@@ -208,158 +208,262 @@ def get_node_func_safe(name, data):
     return False
 
 def print_wiki():
-    """Imprime una wiki interactiva, detallada y colorida para LServer."""
+    """Wiki interactiva multi-idioma de LServer."""
     from lserver.state import get_setting
     lang = get_setting('language') or 'es'
 
-    if lang == 'en':
-        print(f"\n{LIGHT_ORANGE}╔══════════════════════════════════════════════════════════════════════════════╗{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {GOLD}🔥 LSERVER WIKI & USER MANUAL 🔥{RESET}                                           {LIGHT_ORANGE}║{RESET}")
-        print(f"{LIGHT_ORANGE}╠══════════════════════════════════════════════════════════════════════════════╣{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}1. BASIC NODE MANAGEMENT 📦{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Create a server:     {GOLD}lserver -c <name>{RESET} (Add {GRAY}--template minecraft{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Start node:          {GREEN}lserver -p <name>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Safe stop:           {RED}lserver -d <name>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Kill (Force):        {RED}lserver -k <name>{RESET} 💀{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Console / Terminal:  {ORANGE}lserver -e <name>{RESET} (Ctrl+C to exit, Arrows supported){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}2. GROUP SYSTEM 👥{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Create group:        {GOLD}lserver -g <group> -c{RESET} (Interactive: prompts for nodes){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Stop all:            {RED}lserver -g <group> -a{RESET} (Stops all nodes in group){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Start all:           {GREEN}lserver -g <group> -s{RESET} (Starts all nodes in group){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Add/Remove node:     {ORANGE}lserver -g <group> --add <node>{RESET} / {GRAY}--remove <node>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} List groups:         {GOLD}lserver -g list{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}3. ADVANCED FEATURES & AUTOMATION ⚙️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Private Web Panel:   {GOLD}lserver web start 8080{RESET} 🌐 (Use {GRAY}lserver web password{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Auto-Heal (Revive):  {ORANGE}lserver -a <node>{RESET} ❤️ (Revives if it crashes){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Daily Restart:       {ORANGE}lserver -r <node> HH:MM{RESET} ⏰ (Ex: {GRAY}lserver -r lobby 04:00{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Edit start.sh:       {ORANGE}lserver -o <node>{RESET} ✏️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Start Daemon:        {GOLD}lserver daemon start{RESET} 🛡️ (Required for Auto-Heal/Restarts){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Change Language:     {GOLD}lserver -t{RESET} 🌐 (Interactive language prompt){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}4. WEBHOOK ALERTS (DISCORD/TELEGRAM) 🔔{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Setup webhook:       {GOLD}lserver webhook set <URL>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Test alert:          {GREEN}lserver webhook test{RESET}")
-        
-        print(f"{LIGHT_ORANGE}╚══════════════════════════════════════════════════════════════════════════════╝{RESET}\n")
+    W = 78
+    c = LIGHT_ORANGE
 
-    elif lang == 'pt':
-        print(f"\n{LIGHT_ORANGE}╔══════════════════════════════════════════════════════════════════════════════╗{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {GOLD}🔥 LSERVER WIKI & MANUAL DO USUÁRIO 🔥{RESET}                                     {LIGHT_ORANGE}║{RESET}")
-        print(f"{LIGHT_ORANGE}╠══════════════════════════════════════════════════════════════════════════════╣{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}1. GESTÃO BÁSICA DE NÓS 📦{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Criar um servidor:   {GOLD}lserver -c <nome>{RESET} (Adicione {GRAY}--template minecraft{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Iniciar nó:          {GREEN}lserver -p <nome>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Parada segura:       {RED}lserver -d <nome>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Matar (Forçar):      {RED}lserver -k <nome>{RESET} 💀{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Console / Terminal:  {ORANGE}lserver -e <nome>{RESET} (Ctrl+C para sair, Setas suportadas){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}2. SISTEMA DE GRUPOS 👥{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Criar grupo:         {GOLD}lserver -g <grupo> -c{RESET} (Interativo: solicitará os nós){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Desligar todos:      {RED}lserver -g <grupo> -a{RESET} (Para todos os nós do grupo){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Ligar todos:         {GREEN}lserver -g <grupo> -s{RESET} (Inicia todos os nós do grupo){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Adic./Remov. nó:     {ORANGE}lserver -g <grupo> --add <nó>{RESET} / {GRAY}--remove <nó>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Listar grupos:       {GOLD}lserver -g list{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}3. RECURSOS AVANÇADOS & AUTOMAÇÃO ⚙️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Painel Web Privado:  {GOLD}lserver web start 8080{RESET} 🌐 (Use {GRAY}lserver web password{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Auto-Heal (Reviver): {ORANGE}lserver -a <nó>{RESET} ❤️ (Revive se travar){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Reinício Diário:     {ORANGE}lserver -r <nó> HH:MM{RESET} ⏰ (Ex: {GRAY}lserver -r lobby 04:00{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Editar start.sh:     {ORANGE}lserver -o <nó>{RESET} ✏️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Iniciar Daemon:      {GOLD}lserver daemon start{RESET} 🛡️ (Requerido para Auto-Heal/Reinícios){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Mudar Idioma:        {GOLD}lserver -t{RESET} 🌐 (Menu interativo de idiomas){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}4. ALERTAS WEBHOOK (DISCORD/TELEGRAM) 🔔{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Configurar webhook:  {GOLD}lserver webhook set <URL>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Testar alerta:       {GREEN}lserver webhook test{RESET}")
-        
-        print(f"{LIGHT_ORANGE}╚══════════════════════════════════════════════════════════════════════════════╝{RESET}\n")
+    def line(text=""):
+        clean = re.sub(r'\033\[[0-9;]*m', '', text)
+        pad = W - len(clean)
+        print(f"{c}║{RESET}{text}{' ' * max(0, pad)}{c}║{RESET}")
 
-    elif lang == 'fr':
-        print(f"\n{LIGHT_ORANGE}╔══════════════════════════════════════════════════════════════════════════════╗{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {GOLD}🔥 LSERVER WIKI & MANUEL D'UTILISATION 🔥{RESET}                                  {LIGHT_ORANGE}║{RESET}")
-        print(f"{LIGHT_ORANGE}╠══════════════════════════════════════════════════════════════════════════════╣{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}1. GESTION DE BASE DES NŒUDS 📦{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Créer un serveur:    {GOLD}lserver -c <nom>{RESET} (Ajoutez {GRAY}--template minecraft{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Démarrer le nœud:    {GREEN}lserver -p <nom>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Arrêt sécurisé:      {RED}lserver -d <nom>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Tuer (Forcer):       {RED}lserver -k <nom>{RESET} 💀{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Console / Terminal:  {ORANGE}lserver -e <nom>{RESET} (Ctrl+C pour quitter, Flèches supportées){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}2. SYSTÈME DE GROUPES 👥{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Créer un groupe:     {GOLD}lserver -g <groupe> -c{RESET} (Interactif: demande les nœuds){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Arrêter tout:        {RED}lserver -g <groupe> -a{RESET} (Arrête tous les nœuds du groupe){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Démarrer tout:       {GREEN}lserver -g <groupe> -s{RESET} (Démarre tous les nœuds du groupe){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Ajout/Retrait nœud:  {ORANGE}lserver -g <groupe> --add <nœud>{RESET} / {GRAY}--remove <nœud>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Lister groupes:      {GOLD}lserver -g list{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}3. FONCTIONNALITÉS AVANCÉES & AUTOMATISATION ⚙️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Panneau Web Privé:   {GOLD}lserver web start 8080{RESET} 🌐 (Utilisez {GRAY}lserver web password{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Auto-Heal (Réanimer):{ORANGE}lserver -a <nœud>{RESET} ❤️ (Réanime s'il plante){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Redémarrage Quotid.: {ORANGE}lserver -r <nœud> HH:MM{RESET} ⏰ (Ex: {GRAY}lserver -r lobby 04:00{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Modifier start.sh:   {ORANGE}lserver -o <nœud>{RESET} ✏️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Lancer Daemon:       {GOLD}lserver daemon start{RESET} 🛡️ (Requis pour Auto-Heal/Redémarrages){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Changer de Langue:   {GOLD}lserver -t{RESET} 🌐 (Invite de langue interactive){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}4. ALERTES WEBHOOK (DISCORD/TELEGRAM) 🔔{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Configurer webhook:  {GOLD}lserver webhook set <URL>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Tester l'alerte:     {GREEN}lserver webhook test{RESET}")
-        
-        print(f"{LIGHT_ORANGE}╚══════════════════════════════════════════════════════════════════════════════╝{RESET}\n")
+    def sep():
+        print(f"{c}╠{'═' * W}╣{RESET}")
 
-    else:
-        print(f"\n{LIGHT_ORANGE}╔══════════════════════════════════════════════════════════════════════════════╗{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {GOLD}🔥 LSERVER WIKI & MANUAL DE USUARIO 🔥{RESET}                                     {LIGHT_ORANGE}║{RESET}")
-        print(f"{LIGHT_ORANGE}╠══════════════════════════════════════════════════════════════════════════════╣{RESET}")
-        
-        # Seccion 1: Basicos
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}1. GESTIÓN BÁSICA DE NODOS 📦{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Crea un servidor:    {GOLD}lserver -c <nombre>{RESET} (Añade {GRAY}--template minecraft{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Arrancar nodo:       {GREEN}lserver -p <nombre>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Detener seguro:      {RED}lserver -d <nombre>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Matar (Forzar):      {RED}lserver -k <nombre>{RESET} 💀{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Consola / Terminal:  {ORANGE}lserver -e <nombre>{RESET} (Ctrl+C para salir, Flechas soportadas){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        # Seccion 2: Grupos
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}2. SISTEMA DE GRUPOS 👥{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Crear grupo:         {GOLD}lserver -g <grupo> -c{RESET} (Interactiva: te preguntará nodos){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Apagar todo:         {RED}lserver -g <grupo> -a{RESET} (Detiene todos los nodos del grupo){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Encender todo:       {GREEN}lserver -g <grupo> -s{RESET} (Inicia todos los nodos del grupo){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Añadir/Quitar nodo:  {ORANGE}lserver -g <grupo> --add <nodo>{RESET} / {GRAY}--remove <nodo>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Listar grupos:       {GOLD}lserver -g list{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        # Seccion 3: Funciones Avanzadas
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}3. FUNCIONES AVANZADAS Y AUTOMATIZACIÓN ⚙️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Panel Web Privado:   {GOLD}lserver web start 8080{RESET} 🌐 (Usa {GRAY}lserver web password{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Auto-Heal (Revivir): {ORANGE}lserver -a <nodo>{RESET} ❤️ (Revive si crashea){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Reinicio Diario:     {ORANGE}lserver -r <nodo> HH:MM{RESET} ⏰ (Ej: {GRAY}lserver -r lobby 04:00{RESET}{WHITE}){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Editar start.sh:     {ORANGE}lserver -o <nodo>{RESET} ✏️{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Activar Vigilante:   {GOLD}lserver daemon start{RESET} 🛡️ (Requerido para Auto-Heal/Reinicios){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Cambiar Idioma:      {GOLD}lserver -t{RESET} 🌐 (Selector de idioma interactivo){RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET}")
-        
-        # Seccion 4: Alertas
-        print(f"{LIGHT_ORANGE}║{RESET} {CYAN}4. ALERTAS WEBHOOK (DISCORD/TELEGRAM) 🔔{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Configurar:          {GOLD}lserver webhook set <URL>{RESET}")
-        print(f"{LIGHT_ORANGE}║{RESET} {WHITE} Probar alerta:       {GREEN}lserver webhook test{RESET}")
-        
-        print(f"{LIGHT_ORANGE}╚══════════════════════════════════════════════════════════════════════════════╝{RESET}\n")
+    def blank():
+        print(f"{c}║{RESET}{' ' * W}{c}║{RESET}")
 
+    # ─── Traducciones ────────────────────────────────────────────────────
+    T = {
+        'es': {
+            'title':    '🔥  LSERVER — WIKI Y MANUAL DE USUARIO  🔥',
+            's1':  '📦  1. GESTIÓN BÁSICA DE NODOS',
+            'c1':  [
+                ('lserver -c <nombre>',          'Crear nodo  (ej: lserver -c lobby)'),
+                ('lserver -c <nombre> --template minecraft', 'Crear con plantilla Java/Minecraft'),
+                ('lserver -p <nombre>',          'Encender el nodo (keep-alive 24/7)'),
+                ('lserver -d <nombre>',          'Detener el nodo de forma segura'),
+                ('lserver -k <nombre>',          'Forzar cierre inmediato (kill)'),
+                ('lserver -e <nombre>',          'Entrar a la consola interactiva'),
+                ('lserver -o <nombre>',          'Editar el start.sh del nodo'),
+                ('lserver -x <nombre>',          'Borrar el nodo (pregunta por la carpeta)'),
+            ],
+            's2':  '👥  2. SISTEMA DE GRUPOS',
+            'c2':  [
+                ('lserver group',                'Abrir menú interactivo de grupos'),
+                ('lserver group list',           'Ver grupos + estado ONLINE/OFFLINE'),
+                ('lserver group create prod',    'Crear grupo llamado "prod"'),
+                ('lserver group add prod lobby', 'Agregar nodo "lobby" al grupo "prod"'),
+                ('lserver group remove prod hub','Quitar "hub" del grupo (no borra nada)'),
+                ('lserver group start prod',     'Encender TODOS los nodos del grupo'),
+                ('lserver group stop  prod',     'Apagar  TODOS los nodos del grupo'),
+                ('lserver group delete prod',    'Eliminar el grupo (nodos NO se borran)'),
+            ],
+            's3':  '⚙️   3. AUTOMATIZACIÓN Y FUNCIONES AVANZADAS',
+            'c3':  [
+                ('lserver -a <nombre>',          'Auto-Heal ❤  — revive si crashea'),
+                ('lserver -r <nombre> 04:00',    'Reinicio diario a las 04:00 AM'),
+                ('lserver -b <nombre>',          'Menú de backups (manual o automático)'),
+                ('lserver daemon start',         'Activar vigilante 24/7 en background'),
+                ('lserver daemon stop',          'Detener el vigilante'),
+                ('lserver web start 9090',       'Panel web privado en http://IP:9090'),
+                ('lserver web password',         'Configurar usuario y contraseña del panel'),
+                ('lserver update',               'Actualizar LServer desde GitHub'),
+                ('lserver -t',                   'Cambiar idioma (es / en / pt / fr)'),
+            ],
+            's4':  '🔔  4. ALERTAS WEBHOOK (DISCORD / TELEGRAM)',
+            'c4':  [
+                ('lserver webhook set <URL>',    'Guardar URL del webhook'),
+                ('lserver webhook test',         'Enviar alerta de prueba'),
+                ('lserver webhook status',       'Ver si hay webhook configurado'),
+                ('lserver webhook remove',       'Eliminar el webhook guardado'),
+            ],
+            's5':  '💡  5. GUÍA RÁPIDA — PRIMER USO',
+            'qs': [
+                '1.  lserver -c miservidor            # Crea el nodo',
+                '2.  lserver -o miservidor            # Edita start.sh con tu comando',
+                '3.  lserver -p miservidor            # Lo enciende y lo mantiene vivo',
+                '4.  lserver -e miservidor            # Entra a su consola',
+                '5.  lserver daemon start             # Activa Auto-Heal y reinicios',
+            ],
+        },
+        'en': {
+            'title':    '🔥  LSERVER — WIKI & USER MANUAL  🔥',
+            's1':  '📦  1. BASIC NODE MANAGEMENT',
+            'c1':  [
+                ('lserver -c <name>',            'Create node  (e.g. lserver -c lobby)'),
+                ('lserver -c <name> --template minecraft', 'Create with Java/Minecraft template'),
+                ('lserver -p <name>',            'Start the node (24/7 keep-alive)'),
+                ('lserver -d <name>',            'Stop the node safely'),
+                ('lserver -k <name>',            'Force kill (immediate)'),
+                ('lserver -e <name>',            'Open interactive console'),
+                ('lserver -o <name>',            "Edit node's start.sh"),
+                ('lserver -x <name>',            'Delete node (asks about folder)'),
+            ],
+            's2':  '👥  2. GROUP SYSTEM',
+            'c2':  [
+                ('lserver group',                'Open interactive groups menu'),
+                ('lserver group list',           'Show groups + ONLINE/OFFLINE status'),
+                ('lserver group create prod',    'Create group named "prod"'),
+                ('lserver group add prod lobby', 'Add node "lobby" to group "prod"'),
+                ('lserver group remove prod hub','Remove "hub" from group (no delete)'),
+                ('lserver group start prod',     'Start ALL nodes in the group'),
+                ('lserver group stop  prod',     'Stop  ALL nodes in the group'),
+                ('lserver group delete prod',    'Delete group (nodes are NOT deleted)'),
+            ],
+            's3':  '⚙️   3. AUTOMATION & ADVANCED FEATURES',
+            'c3':  [
+                ('lserver -a <name>',            'Auto-Heal ❤  — revives on crash'),
+                ('lserver -r <name> 04:00',      'Daily restart at 04:00 AM'),
+                ('lserver -b <name>',            'Backup menu (manual or automatic)'),
+                ('lserver daemon start',         'Enable 24/7 background watcher'),
+                ('lserver daemon stop',          'Stop the watcher'),
+                ('lserver web start 9090',       'Private web panel at http://IP:9090'),
+                ('lserver web password',         'Set web panel user & password'),
+                ('lserver update',               'Update LServer from GitHub'),
+                ('lserver -t',                   'Change language (es / en / pt / fr)'),
+            ],
+            's4':  '🔔  4. WEBHOOK ALERTS (DISCORD / TELEGRAM)',
+            'c4':  [
+                ('lserver webhook set <URL>',    'Save webhook URL'),
+                ('lserver webhook test',         'Send a test alert'),
+                ('lserver webhook status',       'Check if webhook is configured'),
+                ('lserver webhook remove',       'Remove saved webhook'),
+            ],
+            's5':  '💡  5. QUICK START GUIDE',
+            'qs': [
+                '1.  lserver -c myserver              # Create the node',
+                '2.  lserver -o myserver              # Edit start.sh with your command',
+                '3.  lserver -p myserver              # Start it and keep it alive',
+                '4.  lserver -e myserver              # Open its console',
+                '5.  lserver daemon start             # Enable Auto-Heal & restarts',
+            ],
+        },
+        'pt': {
+            'title':    '🔥  LSERVER — WIKI E MANUAL DO USUÁRIO  🔥',
+            's1':  '📦  1. GESTÃO BÁSICA DE NÓS',
+            'c1':  [
+                ('lserver -c <nome>',            'Criar nó  (ex: lserver -c lobby)'),
+                ('lserver -c <nome> --template minecraft', 'Criar com template Java/Minecraft'),
+                ('lserver -p <nome>',            'Iniciar o nó (keep-alive 24/7)'),
+                ('lserver -d <nome>',            'Parar o nó com segurança'),
+                ('lserver -k <nome>',            'Forçar encerramento (kill)'),
+                ('lserver -e <nome>',            'Abrir console interativo'),
+                ('lserver -o <nome>',            'Editar o start.sh do nó'),
+                ('lserver -x <nome>',            'Apagar o nó (pergunta sobre a pasta)'),
+            ],
+            's2':  '👥  2. SISTEMA DE GRUPOS',
+            'c2':  [
+                ('lserver group',                'Abrir menu interativo de grupos'),
+                ('lserver group list',           'Ver grupos + status ONLINE/OFFLINE'),
+                ('lserver group create prod',    'Criar grupo chamado "prod"'),
+                ('lserver group add prod lobby', 'Adicionar "lobby" ao grupo "prod"'),
+                ('lserver group remove prod hub','Remover "hub" do grupo (sem apagar)'),
+                ('lserver group start prod',     'Iniciar TODOS os nós do grupo'),
+                ('lserver group stop  prod',     'Parar   TODOS os nós do grupo'),
+                ('lserver group delete prod',    'Excluir grupo (nós NÃO são apagados)'),
+            ],
+            's3':  '⚙️   3. AUTOMAÇÃO E FUNÇÕES AVANÇADAS',
+            'c3':  [
+                ('lserver -a <nome>',            'Auto-Heal ❤  — revive ao travar'),
+                ('lserver -r <nome> 04:00',      'Reinício diário às 04:00 AM'),
+                ('lserver -b <nome>',            'Menu de backups (manual ou automático)'),
+                ('lserver daemon start',         'Ativar vigilante 24/7'),
+                ('lserver daemon stop',          'Parar o vigilante'),
+                ('lserver web start 9090',       'Painel web em http://IP:9090'),
+                ('lserver web password',         'Configurar usuário e senha do painel'),
+                ('lserver update',               'Atualizar LServer do GitHub'),
+                ('lserver -t',                   'Mudar idioma (es / en / pt / fr)'),
+            ],
+            's4':  '🔔  4. ALERTAS WEBHOOK (DISCORD / TELEGRAM)',
+            'c4':  [
+                ('lserver webhook set <URL>',    'Salvar URL do webhook'),
+                ('lserver webhook test',         'Enviar alerta de teste'),
+                ('lserver webhook status',       'Verificar webhook configurado'),
+                ('lserver webhook remove',       'Remover webhook salvo'),
+            ],
+            's5':  '💡  5. GUIA RÁPIDO — PRIMEIRO USO',
+            'qs': [
+                '1.  lserver -c meuservidor          # Cria o nó',
+                '2.  lserver -o meuservidor          # Edita start.sh com seu comando',
+                '3.  lserver -p meuservidor          # Inicia e mantém vivo',
+                '4.  lserver -e meuservidor          # Abre o console',
+                '5.  lserver daemon start            # Ativa Auto-Heal e reinícios',
+            ],
+        },
+        'fr': {
+            'title':    "🔥  LSERVER — WIKI & MANUEL D'UTILISATION  🔥",
+            's1':  '📦  1. GESTION DE BASE DES NŒUDS',
+            'c1':  [
+                ('lserver -c <nom>',             'Créer un nœud  (ex: lserver -c lobby)'),
+                ('lserver -c <nom> --template minecraft', 'Créer avec template Java/Minecraft'),
+                ('lserver -p <nom>',             'Démarrer le nœud (keep-alive 24/7)'),
+                ('lserver -d <nom>',             'Arrêter le nœud proprement'),
+                ('lserver -k <nom>',             'Forcer la fermeture (kill)'),
+                ('lserver -e <nom>',             'Ouvrir la console interactive'),
+                ('lserver -o <nom>',             'Modifier le start.sh du nœud'),
+                ('lserver -x <nom>',             'Supprimer le nœud (demande dossier)'),
+            ],
+            's2':  '👥  2. SYSTÈME DE GROUPES',
+            'c2':  [
+                ('lserver group',                'Ouvrir le menu interactif des groupes'),
+                ('lserver group list',           'Voir groupes + état ONLINE/OFFLINE'),
+                ('lserver group create prod',    'Créer le groupe "prod"'),
+                ('lserver group add prod lobby', 'Ajouter "lobby" au groupe "prod"'),
+                ('lserver group remove prod hub','Retirer "hub" du groupe (sans suppr.)'),
+                ('lserver group start prod',     'Démarrer TOUS les nœuds du groupe'),
+                ('lserver group stop  prod',     'Arrêter TOUS les nœuds du groupe'),
+                ('lserver group delete prod',    'Supprimer le groupe (nœuds conservés)'),
+            ],
+            's3':  '⚙️   3. AUTOMATISATION ET FONCTIONS AVANCÉES',
+            'c3':  [
+                ('lserver -a <nom>',             'Auto-Heal ❤  — relance si plantage'),
+                ('lserver -r <nom> 04:00',       'Redémarrage quotidien à 04:00'),
+                ('lserver -b <nom>',             'Menu sauvegardes (manuel/auto)'),
+                ('lserver daemon start',         'Activer le gardien 24/7'),
+                ('lserver daemon stop',          'Arrêter le gardien'),
+                ('lserver web start 9090',       'Panneau web http://IP:9090'),
+                ('lserver web password',         'Configurer identifiants du panneau'),
+                ('lserver update',               'Mettre à jour LServer depuis GitHub'),
+                ('lserver -t',                   'Changer de langue (es / en / pt / fr)'),
+            ],
+            's4':  '🔔  4. ALERTES WEBHOOK (DISCORD / TELEGRAM)',
+            'c4':  [
+                ('lserver webhook set <URL>',    'Enregistrer l\'URL du webhook'),
+                ('lserver webhook test',         'Envoyer une alerte de test'),
+                ('lserver webhook status',       'Vérifier le webhook configuré'),
+                ('lserver webhook remove',       'Supprimer le webhook enregistré'),
+            ],
+            's5':  '💡  5. GUIDE RAPIDE — PREMIER DÉMARRAGE',
+            'qs': [
+                '1.  lserver -c monserveur           # Créer le nœud',
+                '2.  lserver -o monserveur           # Éditer start.sh',
+                '3.  lserver -p monserveur           # Démarrer et maintenir actif',
+                '4.  lserver -e monserveur           # Ouvrir sa console',
+                '5.  lserver daemon start            # Activer Auto-Heal & redémarrages',
+            ],
+        },
+    }
+
+    t = T.get(lang, T['es'])
+    CMD_W = 36  # ancho columna izquierda (comando)
+
+    print(f"\n{c}╔{'═' * W}╗{RESET}")
+    title_pad = W - len(t['title'])
+    print(f"{c}║{RESET} {GOLD}{BOLD}{t['title']}{RESET}{' ' * max(0, title_pad - 1)}{c}║{RESET}")
+    sep()
+
+    for section_key in ['s1', 's2', 's3', 's4']:
+        cmds_key = section_key.replace('s', 'c')
+        line(f" {CYAN}{BOLD}{t[section_key]}{RESET}")
+        blank()
+        for cmd_text, desc_text in t[cmds_key]:
+            cmd_col  = f" {GOLD}{cmd_text:<{CMD_W}}{RESET}"
+            desc_col = f"{GRAY}{desc_text}{RESET}"
+            line(f"{cmd_col}{desc_col}")
+        blank()
+        sep()
+
+    # Sección quick start
+    line(f" {CYAN}{BOLD}{t['s5']}{RESET}")
+    blank()
+    for step in t['qs']:
+        line(f"  {ORANGE}{step}{RESET}")
+    blank()
+    print(f"{c}╚{'═' * W}╝{RESET}\n")
 
 def print_help():
     from lserver.core import list_all_nodes
