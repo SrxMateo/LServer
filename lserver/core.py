@@ -264,16 +264,36 @@ def create_node(name):
         except Exception as e:
             error_exit(f"No se pudo crear el directorio: {e}")
 
-    # Crear script de inicio por defecto si no existe
+    # Crear script de inicio — asistente interactivo de tipo de servidor
     start_script = os.path.join(node_path, "start.sh")
     if not os.path.exists(start_script):
+        from lserver.templates import interactive_template_selector, get_template
+        from lserver.ui import log_info, GOLD, RESET
+
+        log_info(f"Vamos a configurar el {GOLD}start.sh{RESET} del nodo '{name}'.")
+        chosen = interactive_template_selector()
+
+        if chosen:
+            content = get_template(chosen)
+        else:
+            # Canceló el asistente → plantilla mínima por defecto
+            content = (
+                "#!/bin/bash\n"
+                "# Fue creado con mucho amor por SrxMateo & LumaxStudio\n"
+                f"echo 'Iniciando LServer Nodo: {name}'\n"
+                "# Edita este archivo con: lserver -o " + name + "\n"
+                "while true; do sleep 1000; done\n"
+            )
+            log_info("Plantilla vacía aplicada. Edítala con: lserver -o " + name)
+
         with open(start_script, "w") as f:
-            f.write("#!/bin/bash\n")
-            f.write("echo 'Iniciando LServer Nodo: " + name + "'\n")
-            f.write("# Agrega aquí el comando para iniciar tu servidor (ej: npm start, node index.js)\n")
-            f.write("while true; do sleep 1000; done\n")
+            f.write(content)
         os.chmod(start_script, 0o755)
-        log_info(f"Se ha creado un script de inicio por defecto en {start_script}")
+
+        if chosen:
+            from lserver.templates import get_template_description
+            log_success(f"start.sh generado con plantilla: {get_template_description(chosen)}")
+        log_info(f"Ruta: {start_script}")
 
     add_node(name, node_path, "./start.sh")
     log_success(f"Nodo '{name}' creado exitosamente.")
