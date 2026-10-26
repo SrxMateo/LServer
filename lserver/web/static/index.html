@@ -575,11 +575,99 @@ body {
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-@media (max-width: 640px) {
-  .navbar { padding: 0 1rem; }
-  .nav-tabs { display: none; }
-  .main { padding: 1rem; }
+/* SELECTOR DE IDIOMA */
+.lang-selector { display: flex; align-items: center; }
+.lang-select {
+  background: var(--bg-3); border: 1px solid var(--border);
+  color: var(--text); font-family: inherit; font-size: .8rem; font-weight: 600;
+  padding: .35rem .65rem; border-radius: var(--radius-sm);
+  cursor: pointer; outline: none; transition: all var(--transition);
+}
+.lang-select:hover, .lang-select:focus {
+  border-color: var(--brand); background: var(--bg-4);
+}
+
+/* BUSCADOR Y FILTROS */
+.nodes-filter-bar {
+  display: flex; gap: .75rem; align-items: center; justify-content: space-between;
+  margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .45rem .85rem;
+  flex: 1; max-width: 380px; min-width: 200px;
+}
+.search-box input {
+  background: transparent; border: none; outline: none;
+  color: var(--text); font-family: inherit; font-size: .85rem; width: 100%;
+}
+.filter-chips { display: flex; gap: 6px; }
+.filter-chip {
+  background: var(--bg-3); border: 1px solid var(--border);
+  color: var(--text-2); font-size: .78rem; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px; cursor: pointer;
+  transition: all var(--transition); display: flex; align-items: center; gap: 5px;
+}
+.filter-chip:hover { border-color: var(--border-hover); color: var(--text); }
+.filter-chip.active {
+  background: var(--brand); color: #fff; border-color: var(--brand);
+  box-shadow: 0 2px 8px var(--brand-glow);
+}
+
+/* SECCIÓN GUÍA E INFORMACIÓN */
+.guide-container { display: flex; flex-direction: column; gap: 1.5rem; }
+.guide-hero {
+  background: linear-gradient(135deg, rgba(255,140,0,0.12), rgba(59,130,246,0.06));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.75rem 2rem; backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+}
+.guide-hero h2 {
+  font-size: 1.55rem; font-weight: 800; margin-bottom: .6rem;
+  display: flex; align-items: center; gap: 10px; color: var(--text);
+}
+.guide-hero p {
+  color: var(--text-2); font-size: .92rem; line-height: 1.6; max-width: 850px;
+}
+.guide-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.25rem;
+}
+.guide-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.4rem;
+  backdrop-filter: blur(12px); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: .75rem;
+  transition: transform var(--transition), border-color var(--transition);
+}
+.guide-card:hover { transform: translateY(-3px); border-color: var(--brand); }
+.guide-card-header { display: flex; align-items: center; gap: 12px; }
+.guide-card-icon {
+  font-size: 1.6rem; width: 44px; height: 44px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; background: var(--bg-3); border: 1px solid var(--border);
+}
+.guide-card-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.guide-card-desc { font-size: .86rem; color: var(--text-2); line-height: 1.55; }
+.guide-card-commands {
+  background: var(--bg-3); border-radius: var(--radius-sm);
+  padding: .65rem .85rem; border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+  color: var(--brand-light); display: flex; flex-direction: column; gap: 5px;
+}
+.guide-card-commands div { display: flex; align-items: baseline; gap: 6px; }
+.guide-card-commands code { color: var(--brand-light); font-weight: 600; }
+.guide-card-commands span { color: var(--text-3); font-size: .72rem; }
+
+@media (max-width: 768px) {
+  .navbar { padding: 0 .75rem; gap: .5rem; }
+  .nav-tabs { overflow-x: auto; max-width: 55%; flex-shrink: 1; }
+  .nav-tab { padding: 4px 9px; font-size: .78rem; white-space: nowrap; }
+  .server-status { display: none; }
+  .main { padding: 1rem .75rem; }
   .nodes-grid { grid-template-columns: 1fr; }
+  .guide-grid { grid-template-columns: 1fr; }
   #toast-container { left: 1rem; right: 1rem; bottom: 1rem; }
   .toast { min-width: unset; max-width: 100%; }
 }
@@ -595,14 +683,23 @@ body {
   </div>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" data-tab="nodes">🖥️ Nodos</button>
-    <button class="nav-tab" data-tab="groups">👥 Grupos</button>
-    <button class="nav-tab" data-tab="users">👤 Cuentas</button>
+    <button class="nav-tab active" data-tab="nodes" data-i18n="nav_nodes">🖥️ Nodos</button>
+    <button class="nav-tab" data-tab="groups" data-i18n="nav_groups">👥 Grupos</button>
+    <button class="nav-tab" data-tab="users" data-i18n="nav_users">👤 Cuentas</button>
+    <button class="nav-tab" data-tab="guide" data-i18n="nav_guide">📚 Guía & Info</button>
   </div>
 
   <div class="nav-right">
     <div class="server-status ok" id="server-status-pill">
-      <span class="dot"></span> Panel Activo
+      <span class="dot"></span> <span data-i18n="panel_active">Panel Activo</span>
+    </div>
+    <div class="lang-selector">
+      <select class="lang-select" id="lang-select" onchange="I18n.set(this.value)" title="Idioma / Language">
+        <option value="es">🇪🇸 Español</option>
+        <option value="en">🇺🇸 English</option>
+        <option value="pt">🇧🇷 Português</option>
+        <option value="fr">🇫🇷 Français</option>
+      </select>
     </div>
     <button class="theme-btn" id="theme-toggle" title="Cambiar tema">🌙</button>
   </div>
@@ -616,19 +713,19 @@ body {
   <div class="global-bar" id="global-bar">
     <div class="global-stat">
       <span class="g-icon">🖥️</span>
-      <div><div class="g-label">Total Nodos</div><div class="g-val" id="gs-total">—</div></div>
+      <div><div class="g-label" data-i18n="gs_total">Total Nodos</div><div class="g-val" id="gs-total">—</div></div>
     </div>
     <div class="global-stat">
       <span class="g-icon">🟢</span>
-      <div><div class="g-label">Online</div><div class="g-val" id="gs-online" style="color:var(--success)">—</div></div>
+      <div><div class="g-label" data-i18n="gs_online">Online</div><div class="g-val" id="gs-online" style="color:var(--success)">—</div></div>
     </div>
     <div class="global-stat">
       <span class="g-icon">🔴</span>
-      <div><div class="g-label">Offline</div><div class="g-val" id="gs-offline" style="color:var(--danger)">—</div></div>
+      <div><div class="g-label" data-i18n="gs_offline">Offline</div><div class="g-val" id="gs-offline" style="color:var(--danger)">—</div></div>
     </div>
     <div class="global-stat">
       <span class="g-icon">🔄</span>
-      <div><div class="g-label">Actualización</div><div class="g-val" id="gs-refresh">5s</div></div>
+      <div><div class="g-label" data-i18n="gs_refresh">Actualización</div><div class="g-val" id="gs-refresh">5s</div></div>
     </div>
   </div>
 
@@ -636,12 +733,25 @@ body {
   <div class="tab-panel active" id="tab-nodes">
     <div class="page-header">
       <div>
-        <div class="page-title">Mis Nodos <span id="nodes-count-badge"></span></div>
-        <div class="page-sub">Crea, enciende, apaga y administra archivos de tus servidores</div>
+        <div class="page-title"><span data-i18n="nodes_title">Mis Nodos</span> <span id="nodes-count-badge"></span></div>
+        <div class="page-sub" data-i18n="nodes_sub">Crea, enciende, apaga y administra archivos de tus servidores</div>
       </div>
       <div class="header-actions">
-        <button class="btn btn-primary" onclick="CreateModal.open()">✨ + Crear Servidor</button>
-        <button class="btn btn-ghost" onclick="App.refresh()">🔄 Actualizar</button>
+        <button class="btn btn-primary" onclick="CreateModal.open()" data-i18n="btn_create_server">✨ + Crear Servidor</button>
+        <button class="btn btn-ghost" onclick="App.refresh()" data-i18n="btn_refresh">🔄 Actualizar</button>
+      </div>
+    </div>
+
+    <!-- BUSCADOR Y FILTROS -->
+    <div class="nodes-filter-bar">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="nodes-search-input" placeholder="Buscar servidor por nombre..." oninput="App.applyFilter()" autocomplete="off">
+      </div>
+      <div class="filter-chips">
+        <button class="filter-chip active" data-filter="all" onclick="App.setFilter('all', this)"><span data-i18n="filter_all">Todos</span> <span id="fc-all-count"></span></button>
+        <button class="filter-chip" data-filter="online" onclick="App.setFilter('online', this)">🟢 <span data-i18n="filter_online">Online</span> <span id="fc-online-count"></span></button>
+        <button class="filter-chip" data-filter="offline" onclick="App.setFilter('offline', this)">🔴 <span data-i18n="filter_offline">Offline</span> <span id="fc-offline-count"></span></button>
       </div>
     </div>
     <div class="nodes-grid" id="nodes-grid">
@@ -656,14 +766,14 @@ body {
   <div class="tab-panel" id="tab-groups">
     <div class="page-header">
       <div>
-        <div class="page-title">Grupos de Nodos</div>
-        <div class="page-sub">Controla múltiples servidores en simultáneo</div>
+        <div class="page-title"><span data-i18n="groups_title">Grupos de Nodos</span></div>
+        <div class="page-sub" data-i18n="groups_sub">Controla múltiples servidores en simultáneo</div>
       </div>
     </div>
     <div class="groups-grid" id="groups-grid">
       <div class="empty-state">
         <div class="emoji">⏳</div>
-        <h3>Cargando grupos…</h3>
+        <h3 data-i18n="loading_groups">Cargando grupos…</h3>
       </div>
     </div>
   </div>
@@ -672,27 +782,44 @@ body {
   <div class="tab-panel" id="tab-users">
     <div class="page-header">
       <div>
-        <div class="page-title">Cuentas de Acceso <span id="users-count-badge"></span></div>
-        <div class="page-sub">Gestiona los usuarios con acceso autorizado al panel web de LServer</div>
+        <div class="page-title"><span data-i18n="users_title">Cuentas de Acceso</span> <span id="users-count-badge"></span></div>
+        <div class="page-sub" data-i18n="users_sub">Gestiona los usuarios con acceso autorizado al panel web de LServer</div>
       </div>
       <div class="header-actions">
-        <button class="btn btn-primary" onclick="UserModal.open()">✨ + Crear Usuario</button>
-        <button class="btn btn-ghost" onclick="UserManager.load()">🔄 Actualizar</button>
+        <button class="btn btn-primary" onclick="UserModal.open()" data-i18n="btn_create_user">✨ + Crear Usuario</button>
+        <button class="btn btn-ghost" onclick="UserManager.load()" data-i18n="btn_refresh">🔄 Actualizar</button>
       </div>
     </div>
     <div class="card" style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;backdrop-filter:blur(12px);box-shadow:var(--shadow);">
       <table class="files-table" style="width:100%">
         <thead>
           <tr>
-            <th style="width:35%">Usuario</th>
-            <th style="width:35%">Fecha de Creación</th>
-            <th style="width:30%;text-align:right">Acciones</th>
+            <th style="width:35%" data-i18n="th_user">Usuario</th>
+            <th style="width:35%" data-i18n="th_created">Fecha de Creación</th>
+            <th style="width:30%;text-align:right" data-i18n="th_actions">Acciones</th>
           </tr>
         </thead>
         <tbody id="users-tbody">
           <tr><td colspan="3" style="text-align:center;padding:2rem;color:var(--text-2)"><span class="spin"></span> Cargando usuarios…</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- TAB: GUÍA & INFORMACIÓN -->
+  <div class="tab-panel" id="tab-guide">
+    <div class="page-header">
+      <div>
+        <div class="page-title"><span data-i18n="guide_title">Guía & Información</span></div>
+        <div class="page-sub" data-i18n="guide_sub">Aprende para qué sirve cada función de LServer y cómo optimizar tus servidores</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="window.open('https://github.com/SrxMateo/LServer', '_blank')">⭐ GitHub Oficial</button>
+      </div>
+    </div>
+
+    <div class="guide-container" id="guide-content">
+      <!-- Generado dinámicamente según el idioma -->
     </div>
   </div>
 
@@ -904,6 +1031,825 @@ const Sound = (() => {
 })();
 
 /* ═══════════════════════════════════════════════════════════
+   I18N — MULTI-IDIOMA (ES / EN / PT / FR)
+═══════════════════════════════════════════════════════════ */
+const I18n = (() => {
+  let lang = localStorage.getItem('lserver-lang') || 'es';
+
+  const DICT = {
+    es: {
+      nav_nodes: '🖥️ Nodos',
+      nav_groups: '👥 Grupos',
+      nav_users: '👤 Cuentas',
+      nav_guide: '📚 Guía & Info',
+      panel_active: 'Panel Activo',
+
+      gs_total: 'Total Nodos',
+      gs_online: 'Online',
+      gs_offline: 'Offline',
+      gs_refresh: 'Actualización',
+
+      nodes_title: 'Mis Nodos',
+      nodes_sub: 'Crea, enciende, apaga y administra archivos de tus servidores',
+      btn_create_server: '✨ + Crear Servidor',
+      btn_refresh: '🔄 Actualizar',
+      search_placeholder: 'Buscar servidor por nombre...',
+      filter_all: 'Todos',
+      filter_online: 'Online',
+      filter_offline: 'Offline',
+      loading_nodes: 'Cargando nodos…',
+      empty_nodes_title: 'No hay servidores creados',
+      empty_nodes_desc: 'Haz clic en el botón <b>"+ Crear Servidor"</b> arriba para crear el primero.',
+      no_results_title: 'Sin resultados',
+      no_results_desc: 'No se encontraron servidores que coincidan con la búsqueda.',
+
+      card_uptime: 'Uptime',
+      card_port: 'Puerto',
+      card_path: 'Ruta',
+      btn_stop: '⏹ Detener',
+      btn_restart: '🔄 Restart',
+      btn_kill: '💀 Kill',
+      btn_start: '▶ Encender',
+      btn_logs: '📋 Logs',
+      btn_files: '📁 Archivos',
+      confirm_delete_node: '¿Eliminar el servidor "{name}"?\n\nPulsa ACEPTAR si también deseas borrar la CARPETA FÍSICA con todos sus archivos.\nPulsa CANCELAR para conservar los archivos.',
+      confirm_kill_node: '¿Matar (forzar cierre) de "{name}"?\nEsto puede causar pérdida de datos.',
+
+      groups_title: 'Grupos de Nodos',
+      groups_sub: 'Controla múltiples servidores en simultáneo',
+      loading_groups: 'Cargando grupos…',
+      empty_groups_title: 'No hay grupos configurados',
+      empty_groups_desc: 'Crea uno en la CLI con <code>lserver group create &lt;nombre&gt;</code>',
+      btn_start_group: '▶ Iniciar Todo',
+      btn_stop_group: '⏹ Apagar Todo',
+
+      users_title: 'Cuentas de Acceso',
+      users_sub: 'Gestiona los usuarios con acceso autorizado al panel web de LServer',
+      btn_create_user: '✨ + Crear Usuario',
+      th_user: 'Usuario',
+      th_created: 'Fecha de Creación',
+      th_actions: 'Acciones',
+      empty_users_desc: '<b>No hay cuentas configuradas.</b><br><span style="font-size:.8rem;color:var(--warning)">El panel web tiene acceso abierto sin contraseña. Crea una cuenta para protegerlo.</span>',
+      confirm_delete_user: '¿Estás seguro de que deseas eliminar la cuenta "{name}"?',
+
+      modal_create_title: '✨ Crear Nuevo Servidor',
+      label_node_name: 'Nombre del Nodo',
+      hint_node_name: 'Solo letras, números, guiones y guiones bajos (sin espacios).',
+      label_template: 'Tipo de Servidor / Plantilla',
+      hint_template: 'Genera el start.sh optimizado automáticamente.',
+      btn_cancel: 'Cancelar',
+      btn_create_submit: '🚀 Crear Servidor',
+
+      modal_user_title: '👤 Crear Nueva Cuenta',
+      label_username: 'Nombre de Usuario',
+      label_password: 'Contraseña',
+      hint_password: 'Mínimo 4 caracteres. Se cifra automáticamente con SHA-256.',
+      btn_user_submit: '👤 Crear Cuenta',
+
+      tab_logs: '📋 Logs',
+      tab_editor: '✏️ start.sh',
+      tab_files: '📁 Archivos',
+      cmd_placeholder: 'Escribe un comando al servidor y pulsa Enter…',
+      btn_send_cmd: 'Enviar ▶',
+      btn_reload: '↺ Recargar',
+      btn_save: '💾 Guardar',
+      editor_hint_base: 'start.sh de "{name}" — edita y guarda para aplicar.',
+
+      crumb_root: '📁 raíz',
+      btn_upload_file: '⬆️ Subir Archivo',
+      btn_new_file: '➕ Archivo',
+      btn_new_dir: '📁 Carpeta',
+      th_file_name: 'Nombre',
+      th_file_size: 'Tamaño',
+      th_file_date: 'Modificado',
+      th_file_actions: 'Acciones',
+      folder_empty: 'Esta carpeta está vacía. Arrastra archivos aquí para subirlos.',
+      btn_back_folder: '← Volver a la carpeta',
+      btn_save_file: '💾 Guardar cambios',
+
+      guide_title: 'Guía & Información',
+      guide_sub: 'Aprende para qué sirve cada función de LServer y cómo optimizar tus servidores',
+    },
+    en: {
+      nav_nodes: '🖥️ Nodes',
+      nav_groups: '👥 Groups',
+      nav_users: '👤 Accounts',
+      nav_guide: '📚 Guide & Info',
+      panel_active: 'Panel Active',
+
+      gs_total: 'Total Nodes',
+      gs_online: 'Online',
+      gs_offline: 'Offline',
+      gs_refresh: 'Refresh',
+
+      nodes_title: 'My Nodes',
+      nodes_sub: 'Create, start, stop and manage server files easily',
+      btn_create_server: '✨ + Create Server',
+      btn_refresh: '🔄 Refresh',
+      search_placeholder: 'Search server by name...',
+      filter_all: 'All',
+      filter_online: 'Online',
+      filter_offline: 'Offline',
+      loading_nodes: 'Loading nodes…',
+      empty_nodes_title: 'No servers created',
+      empty_nodes_desc: 'Click the <b>"+ Create Server"</b> button above to create your first server.',
+      no_results_title: 'No results found',
+      no_results_desc: 'No servers match your current search query.',
+
+      card_uptime: 'Uptime',
+      card_port: 'Port',
+      card_path: 'Path',
+      btn_stop: '⏹ Stop',
+      btn_restart: '🔄 Restart',
+      btn_kill: '💀 Kill',
+      btn_start: '▶ Start',
+      btn_logs: '📋 Logs',
+      btn_files: '📁 Files',
+      confirm_delete_node: 'Delete server "{name}"?\n\nPress OK if you also want to delete the PHYSICAL FOLDER with all its files.\nPress CANCEL to keep the files.',
+      confirm_kill_node: 'Kill (force terminate) "{name}"?\nThis may cause unsaved data loss.',
+
+      groups_title: 'Node Groups',
+      groups_sub: 'Control multiple servers simultaneously',
+      loading_groups: 'Loading groups…',
+      empty_groups_title: 'No groups',
+      empty_groups_desc: 'Create one in CLI using <code>lserver group create &lt;name&gt;</code>',
+      btn_start_group: '▶ Start All',
+      btn_stop_group: '⏹ Stop All',
+
+      users_title: 'Access Accounts',
+      users_sub: 'Manage authorized accounts for the LServer web panel',
+      btn_create_user: '✨ + Create User',
+      th_user: 'User',
+      th_created: 'Creation Date',
+      th_actions: 'Actions',
+      empty_users_desc: '<b>No accounts configured.</b><br><span style="font-size:.8rem;color:var(--warning)">The web panel has open access without password. Create an account to protect it.</span>',
+      confirm_delete_user: 'Are you sure you want to delete account "{name}"?',
+
+      modal_create_title: '✨ Create New Server',
+      label_node_name: 'Node Name',
+      hint_node_name: 'Only letters, numbers, dashes and underscores (no spaces).',
+      label_template: 'Server Type / Template',
+      hint_template: 'Generates optimized start.sh automatically.',
+      btn_cancel: 'Cancel',
+      btn_create_submit: '🚀 Create Server',
+
+      modal_user_title: '👤 Create New Account',
+      label_username: 'Username',
+      label_password: 'Password',
+      hint_password: 'Minimum 4 characters. Automatically encrypted with SHA-256.',
+      btn_user_submit: '👤 Create Account',
+
+      tab_logs: '📋 Logs',
+      tab_editor: '✏️ start.sh',
+      tab_files: '📁 Files',
+      cmd_placeholder: 'Type a command to the server and press Enter…',
+      btn_send_cmd: 'Send ▶',
+      btn_reload: '↺ Reload',
+      btn_save: '💾 Save',
+      editor_hint_base: 'start.sh of "{name}" — edit and save to apply.',
+
+      crumb_root: '📁 root',
+      btn_upload_file: '⬆️ Upload File',
+      btn_new_file: '➕ File',
+      btn_new_dir: '📁 Folder',
+      th_file_name: 'Name',
+      th_file_size: 'Size',
+      th_file_date: 'Modified',
+      th_file_actions: 'Actions',
+      folder_empty: 'This folder is empty. Drag and drop files here to upload.',
+      btn_back_folder: '← Back to folder',
+      btn_save_file: '💾 Save changes',
+
+      guide_title: 'Guide & Information',
+      guide_sub: 'Learn what each LServer feature is for and how to optimize your servers',
+    },
+    pt: {
+      nav_nodes: '🖥️ Nós',
+      nav_groups: '👥 Grupos',
+      nav_users: '👤 Contas',
+      nav_guide: '📚 Guia & Info',
+      panel_active: 'Painel Ativo',
+
+      gs_total: 'Total de Nós',
+      gs_online: 'Online',
+      gs_offline: 'Offline',
+      gs_refresh: 'Atualização',
+
+      nodes_title: 'Meus Nós',
+      nodes_sub: 'Crie, inicie, pare e gerencie arquivos dos seus servidores',
+      btn_create_server: '✨ + Criar Servidor',
+      btn_refresh: '🔄 Atualizar',
+      search_placeholder: 'Buscar servidor por nome...',
+      filter_all: 'Todos',
+      filter_online: 'Online',
+      filter_offline: 'Offline',
+      loading_nodes: 'Carregando nós…',
+      empty_nodes_title: 'Nenhum servidor criado',
+      empty_nodes_desc: 'Clique no botão <b>"+ Criar Servidor"</b> acima para criar o primeiro.',
+      no_results_title: 'Nenhum resultado',
+      no_results_desc: 'Nenhum servidor corresponde à pesquisa.',
+
+      card_uptime: 'Tempo Ativo',
+      card_port: 'Porta',
+      card_path: 'Caminho',
+      btn_stop: '⏹ Parar',
+      btn_restart: '🔄 Restart',
+      btn_kill: '💀 Forçar',
+      btn_start: '▶ Iniciar',
+      btn_logs: '📋 Logs',
+      btn_files: '📁 Arquivos',
+      confirm_delete_node: 'Excluir o servidor "{name}"?\n\nClique em OK se também deseja apagar a PASTA FÍSICA com todos os arquivos.\nClique em CANCELAR para manter os arquivos.',
+      confirm_kill_node: 'Forçar parada de "{name}"?\nIsso pode causar perda de dados.',
+
+      groups_title: 'Grupos de Nós',
+      groups_sub: 'Controle múltiplos servidores simultaneamente',
+      loading_groups: 'Carregando grupos…',
+      empty_groups_title: 'Nenhum grupo',
+      empty_groups_desc: 'Crie um na CLI com <code>lserver group create &lt;nome&gt;</code>',
+      btn_start_group: '▶ Iniciar Todos',
+      btn_stop_group: '⏹ Parar Todos',
+
+      users_title: 'Contas de Acesso',
+      users_sub: 'Gerencie os usuários com acesso autorizado ao painel web do LServer',
+      btn_create_user: '✨ + Criar Usuário',
+      th_user: 'Usuário',
+      th_created: 'Data de Criação',
+      th_actions: 'Ações',
+      empty_users_desc: '<b>Nenhuma conta configurada.</b><br><span style="font-size:.8rem;color:var(--warning)">O painel web tem acesso aberto sem senha. Crie uma conta para protegê-lo.</span>',
+      confirm_delete_user: 'Tem certeza de que deseja excluir a conta "{name}"?',
+
+      modal_create_title: '✨ Criar Novo Servidor',
+      label_node_name: 'Nome do Nó',
+      hint_node_name: 'Apenas letras, números, traços e sublinhados (sem espaços).',
+      label_template: 'Tipo de Servidor / Modelo',
+      hint_template: 'Gera o start.sh otimizado automaticamente.',
+      btn_cancel: 'Cancelar',
+      btn_create_submit: '🚀 Criar Servidor',
+
+      modal_user_title: '👤 Criar Nova Conta',
+      label_username: 'Nome de Usuário',
+      label_password: 'Senha',
+      hint_password: 'Mínimo de 4 caracteres. Criptografado com SHA-256.',
+      btn_user_submit: '👤 Criar Conta',
+
+      tab_logs: '📋 Logs',
+      tab_editor: '✏️ start.sh',
+      tab_files: '📁 Arquivos',
+      cmd_placeholder: 'Digite um comando para o servidor e pressione Enter…',
+      btn_send_cmd: 'Enviar ▶',
+      btn_reload: '↺ Recarregar',
+      btn_save: '💾 Salvar',
+      editor_hint_base: 'start.sh de "{name}" — edite e salve para aplicar.',
+
+      crumb_root: '📁 raiz',
+      btn_upload_file: '⬆️ Enviar Arquivo',
+      btn_new_file: '➕ Arquivo',
+      btn_new_dir: '📁 Pasta',
+      th_file_name: 'Nome',
+      th_file_size: 'Tamanho',
+      th_file_date: 'Modificado',
+      th_file_actions: 'Ações',
+      folder_empty: 'Esta pasta está vazia. Arraste arquivos aqui para enviá-los.',
+      btn_back_folder: '← Voltar para a pasta',
+      btn_save_file: '💾 Salvar alterações',
+
+      guide_title: 'Guia & Informações',
+      guide_sub: 'Aprenda para que serve cada função do LServer e como otimizar seus servidores',
+    },
+    fr: {
+      nav_nodes: '🖥️ Nœuds',
+      nav_groups: '👥 Groupes',
+      nav_users: '👤 Comptes',
+      nav_guide: '📚 Guide & Info',
+      panel_active: 'Panneau Actif',
+
+      gs_total: 'Total Nœuds',
+      gs_online: 'En Ligne',
+      gs_offline: 'Hors Ligne',
+      gs_refresh: 'Actualisation',
+
+      nodes_title: 'Mes Nœuds',
+      nodes_sub: 'Créez, démarrez, arrêtez et gérez les fichiers de vos serveurs',
+      btn_create_server: '✨ + Créer un Serveur',
+      btn_refresh: '🔄 Actualiser',
+      search_placeholder: 'Rechercher un serveur par nom...',
+      filter_all: 'Tous',
+      filter_online: 'En Ligne',
+      filter_offline: 'Hors Ligne',
+      loading_nodes: 'Chargement des nœuds…',
+      empty_nodes_title: 'Aucun serveur créé',
+      empty_nodes_desc: 'Cliquez sur <b>"+ Créer un Serveur"</b> ci-dessus pour créer le premier.',
+      no_results_title: 'Aucun résultat',
+      no_results_desc: 'Aucun serveur ne correspond à la recherche.',
+
+      card_uptime: 'Disponibilité',
+      card_port: 'Port',
+      card_path: 'Chemin',
+      btn_stop: '⏹ Arrêter',
+      btn_restart: '🔄 Redémarrer',
+      btn_kill: '💀 Forcer',
+      btn_start: '▶ Démarrer',
+      btn_logs: '📋 Logs',
+      btn_files: '📁 Fichiers',
+      confirm_delete_node: 'Supprimer le serveur "{name}" ?\n\nAppuyez sur OK si vous souhaitez également supprimer le DOSSIER PHYSIQUE avec tous ses fichiers.\nAppuyez sur ANNULER pour conserver les fichiers.',
+      confirm_kill_node: 'Forcer l’arrêt de "{name}" ?\nCela peut entraîner des pertes de données.',
+
+      groups_title: 'Groupes de Nœuds',
+      groups_sub: 'Contrôlez plusieurs serveurs simultanément',
+      loading_groups: 'Chargement des groupes…',
+      empty_groups_title: 'Aucun groupe',
+      empty_groups_desc: 'Créez-en un dans la CLI avec <code>lserver group create &lt;nom&gt;</code>',
+      btn_start_group: '▶ Tout Démarrer',
+      btn_stop_group: '⏹ Tout Arrêter',
+
+      users_title: 'Comptes d’Accès',
+      users_sub: 'Gérez les utilisateurs autorisés sur le panneau web LServer',
+      btn_create_user: '✨ + Créer un Compte',
+      th_user: 'Utilisateur',
+      th_created: 'Date de Création',
+      th_actions: 'Actions',
+      empty_users_desc: '<b>Aucun compte configuré.</b><br><span style="font-size:.8rem;color:var(--warning)">Le panneau web est en accès libre sans mot de passe. Créez un compte pour le protéger.</span>',
+      confirm_delete_user: 'Êtes-vous sûr de vouloir supprimer le compte "{name}" ?',
+
+      modal_create_title: '✨ Créer un Nouveau Serveur',
+      label_node_name: 'Nom du Nœud',
+      hint_node_name: 'Uniquement lettres, chiffres, tirets et tirets bas (sans espaces).',
+      label_template: 'Type de Serveur / Modèle',
+      hint_template: 'Génère automatiquement le start.sh optimisé.',
+      btn_cancel: 'Annuler',
+      btn_create_submit: '🚀 Créer le Serveur',
+
+      modal_user_title: '👤 Créer un Nouveau Compte',
+      label_username: 'Nom d’Utilisateur',
+      label_password: 'Mot de Passe',
+      hint_password: 'Minimum 4 caractères. Chiffré automatiquement avec SHA-256.',
+      btn_user_submit: '👤 Créer le Compte',
+
+      tab_logs: '📋 Logs',
+      tab_editor: '✏️ start.sh',
+      tab_files: '📁 Fichiers',
+      cmd_placeholder: 'Tapez une commande pour le serveur et appuyez sur Entrée…',
+      btn_send_cmd: 'Envoyer ▶',
+      btn_reload: '↺ Recharger',
+      btn_save: '💾 Enregistrer',
+      editor_hint_base: 'start.sh de "{name}" — modifiez et enregistrez pour appliquer.',
+
+      crumb_root: '📁 racine',
+      btn_upload_file: '⬆️ Téléverser',
+      btn_new_file: '➕ Fichier',
+      btn_new_dir: '📁 Dossier',
+      th_file_name: 'Nom',
+      th_file_size: 'Taille',
+      th_file_date: 'Modifié',
+      th_file_actions: 'Actions',
+      folder_empty: 'Ce dossier est vide. Glissez-déposez des fichiers ici.',
+      btn_back_folder: '← Retour au dossier',
+      btn_save_file: '💾 Enregistrer modifications',
+
+      guide_title: 'Guide & Information',
+      guide_sub: 'Découvrez à quoi sert chaque fonctionnalité de LServer et comment optimiser vos serveurs',
+    }
+  };
+
+  const GUIDE_DATA = {
+    es: {
+      hero_title: '⚡ ¿Qué es LServer y para qué sirve?',
+      hero_desc: 'LServer es un administrador moderno y ultra-rápido de procesos y servidores 24/7 para entornos Linux (VPS y dedicados). Te permite crear, encender, apagar y administrar tus servidores de Minecraft (Paper, Purpur, Velocity, BungeeCord), NodeJS, Python y bots sin depender de Docker ni software pesado. Todo se ejecuta de forma nativa con mínimo consumo de RAM y CPU.',
+      topics: [
+        {
+          icon: '🖥️',
+          title: '1. Nodos de Servidor',
+          desc: 'Cada servidor administrado es un "Nodo" independiente con su propia carpeta, archivos y script de arranque (start.sh). LServer ejecuta un bucle de keep-alive en background que asegura que el servidor permanezca encendido 24/7 sin cerrarse al desconectarte de la terminal.',
+          commands: [
+            { cmd: 'lserver -c <nodo>', desc: 'Crea un nuevo servidor' },
+            { cmd: 'lserver -p <nodo>', desc: 'Enciende el servidor 24/7' },
+            { cmd: 'lserver -d <nodo>', desc: 'Apaga el servidor de forma segura' }
+          ]
+        },
+        {
+          icon: '👥',
+          title: '2. Grupos de Nodos',
+          desc: 'Ideal para redes complejas de Minecraft (ej: Proxy Velocity + Lobby + Survival + Bedwars). Puedes agrupar múltiples servidores bajo un mismo nombre para encenderlos o apagarlos todos juntos con un solo clic.',
+          commands: [
+            { cmd: 'lserver group create <nombre>', desc: 'Crea un grupo de servidores' },
+            { cmd: 'lserver group add <grupo> <nodo>', desc: 'Añade un nodo al grupo' },
+            { cmd: 'lserver group start <grupo>', desc: 'Enciende todos los servidores del grupo' }
+          ]
+        },
+        {
+          icon: '📁',
+          title: '3. Gestor de Archivos Web',
+          desc: 'Olvídate de abrir FileZilla o configurar SFTP. Desde la pestaña "Archivos" de cualquier nodo puedes arrastrar archivos directamente desde tu ordenador para subirlos, crear archivos y carpetas, y editar archivos de configuración (server.properties, config.yml, etc.) directamente en el navegador.',
+          commands: [
+            { cmd: 'Drag & Drop', desc: 'Arrastra archivos a la lista para subirlos' },
+            { cmd: 'Editor Web', desc: 'Haz clic en el lápiz para editar cualquier archivo de texto' }
+          ]
+        },
+        {
+          icon: '📋',
+          title: '4. Consola en Vivo y Comandos',
+          desc: 'Visualiza en tiempo real los registros de tu servidor con colores limpios (info, advertencias, errores y éxitos). Además, puedes escribir comandos en el cajón inferior (ej: "op jugador", "reload", "say Hola") y enviarlos inmediatamente al servidor.',
+          commands: [
+            { cmd: 'lserver -e <nodo>', desc: 'Consola interactiva desde la terminal SSH' },
+            { cmd: 'Panel Web -> Logs', desc: 'Consola en vivo desde cualquier navegador' }
+          ]
+        },
+        {
+          icon: '☕',
+          title: '5. Plantillas y Aikar’s Flags',
+          desc: 'Al crear un servidor, LServer te permite elegir plantillas optimizadas para Paper, Purpur, Velocity, BungeeCord, NodeJS y Python. Para servidores Java aplica las prestigiosas JVM Flags de Aikar con Garbage Collector G1 para eliminar tirones de lag.',
+          commands: [
+            { cmd: 'lserver -c lobby --template minecraft', desc: 'Crea con Aikar Flags optimizadas' },
+            { cmd: 'lserver -o <nodo>', desc: 'Edita el script start.sh de arranque' }
+          ]
+        },
+        {
+          icon: '❤️',
+          title: '6. Auto-Heal (Watchdog 24/7)',
+          desc: 'El vigilante en segundo plano monitorea tus servidores críticos. Si un servidor se cae por un error inesperado, out of memory o crash, Auto-Heal lo detecta en segundos, lo vuelve a encender automáticamente y envía una notificación.',
+          commands: [
+            { cmd: 'lserver -a <nodo>', desc: 'Activa el auto-reinicio para un servidor' },
+            { cmd: 'lserver daemon start', desc: 'Inicia el servicio vigilante en background' }
+          ]
+        },
+        {
+          icon: '💾',
+          title: '7. Backups y Reinicios Diarios',
+          desc: 'Programa reinicios automáticos a horas fijas (ej. 04:00 AM) para liberar memoria RAM acumulada y genera copias de seguridad completas en formato ZIP para proteger el progreso y los mundos de tus jugadores.',
+          commands: [
+            { cmd: 'lserver -r <nodo> 04:00', desc: 'Programa reinicio diario a las 4 AM' },
+            { cmd: 'lserver -b <nodo>', desc: 'Menú de backups manuales y automáticos' }
+          ]
+        },
+        {
+          icon: '👤',
+          title: '8. Acceso VPS y Multi-Cuenta',
+          desc: 'LServer detecta automáticamente la IP pública real de tu VPS (ej: http://92.176.197.121:9090) para que tu equipo pueda conectarse. Puedes crear múltiples cuentas con usuario y contraseña protegidas por hash SHA-256.',
+          commands: [
+            { cmd: 'lserver web start', desc: 'Inicia el servidor web privado' },
+            { cmd: 'lserver web user add <usuario>', desc: 'Crea una cuenta de acceso' }
+          ]
+        },
+        {
+          icon: '🔔',
+          title: '9. Alertas Webhook (Discord / Telegram)',
+          desc: 'Conecta tu servidor de Discord o bot de Telegram mediante webhooks. Recibirás mensajes estilizados con colores cuando un servidor se encienda, se apague, sufra una caída o se realice un reinicio programado.',
+          commands: [
+            { cmd: 'lserver webhook set <url>', desc: 'Configura la URL de Discord o Telegram' },
+            { cmd: 'lserver webhook test', desc: 'Envía un mensaje de prueba al webhook' }
+          ]
+        }
+      ]
+    },
+    en: {
+      hero_title: '⚡ What is LServer and what is it for?',
+      hero_desc: 'LServer is a modern, ultra-fast 24/7 process and server manager for Linux (VPS and dedicated). It lets you create, start, stop, and manage your Minecraft (Paper, Purpur, Velocity, BungeeCord), NodeJS, Python, and bots without relying on Docker or heavy software. Everything runs natively with minimal RAM and CPU overhead.',
+      topics: [
+        {
+          icon: '🖥️',
+          title: '1. Server Nodes',
+          desc: 'Every managed server is an independent "Node" with its own working folder, logs, and start.sh script. LServer maintains a background keep-alive loop ensuring your server stays up 24/7 even after you disconnect from SSH.',
+          commands: [
+            { cmd: 'lserver -c <node>', desc: 'Create a new server node' },
+            { cmd: 'lserver -p <node>', desc: 'Start the server 24/7' },
+            { cmd: 'lserver -d <node>', desc: 'Safely stop the server' }
+          ]
+        },
+        {
+          icon: '👥',
+          title: '2. Node Groups',
+          desc: 'Ideal for complex Minecraft networks (e.g. Velocity Proxy + Lobby + Survival + Bedwars). Group multiple servers together to start, stop, or restart the entire network with a single click or command.',
+          commands: [
+            { cmd: 'lserver group create <name>', desc: 'Create a server group' },
+            { cmd: 'lserver group add <group> <node>', desc: 'Add a node to the group' },
+            { cmd: 'lserver group start <group>', desc: 'Start all servers in the group' }
+          ]
+        },
+        {
+          icon: '📁',
+          title: '3. Web File Manager',
+          desc: 'No need for FileZilla or SFTP. From the "Files" tab of any node, you can drag and drop files to upload them, create files and folders, and edit configuration files (server.properties, config.yml, etc.) directly in your browser.',
+          commands: [
+            { cmd: 'Drag & Drop', desc: 'Drag files into the list to upload them' },
+            { cmd: 'Web Editor', desc: 'Click the pencil icon to edit any text file' }
+          ]
+        },
+        {
+          icon: '📋',
+          title: '4. Live Console & Commands',
+          desc: 'Monitor real-time server output with clean ANSI colors (info, warnings, errors, and success). Send commands directly to the server (e.g., "op player", "reload", "say Hello") right from the web panel.',
+          commands: [
+            { cmd: 'lserver -e <node>', desc: 'Interactive console in SSH terminal' },
+            { cmd: 'Web Panel -> Logs', desc: 'Live console in any browser' }
+          ]
+        },
+        {
+          icon: '☕',
+          title: '5. Templates & Aikar’s Flags',
+          desc: 'When creating a server, choose pre-optimized templates for Paper, Purpur, Velocity, BungeeCord, NodeJS, and Python. Java templates come preconfigured with Aikar’s Flags and G1 Garbage Collection to eliminate lag spikes.',
+          commands: [
+            { cmd: 'lserver -c lobby --template minecraft', desc: 'Create with Aikar JVM Flags' },
+            { cmd: 'lserver -o <node>', desc: 'Edit the start.sh startup script' }
+          ]
+        },
+        {
+          icon: '❤️',
+          title: '6. Auto-Heal (Watchdog 24/7)',
+          desc: 'The background watchdog monitors critical servers every 10 seconds. If a server crashes or shuts down unexpectedly, Auto-Heal revives it immediately and sends an alert.',
+          commands: [
+            { cmd: 'lserver -a <node>', desc: 'Enable auto-restart for a server' },
+            { cmd: 'lserver daemon start', desc: 'Start the watchdog daemon in background' }
+          ]
+        },
+        {
+          icon: '💾',
+          title: '7. Automated Backups & Restarts',
+          desc: 'Schedule daily restarts (e.g. at 04:00 AM) to release accumulated RAM and generate full compressed ZIP backups with retention to keep your worlds safe.',
+          commands: [
+            { cmd: 'lserver -r <node> 04:00', desc: 'Schedule daily restart at 4 AM' },
+            { cmd: 'lserver -b <node>', desc: 'Manual and automatic backup menu' }
+          ]
+        },
+        {
+          icon: '👤',
+          title: '8. VPS Public IP & Multi-User',
+          desc: 'LServer automatically discovers your VPS public IP (e.g., http://92.176.197.121:9090) so your staff can connect. Create multiple accounts with SHA-256 hashed credentials and HTTP Basic Auth security.',
+          commands: [
+            { cmd: 'lserver web start', desc: 'Start private web dashboard' },
+            { cmd: 'lserver web user add <user>', desc: 'Create an authorized access account' }
+          ]
+        },
+        {
+          icon: '🔔',
+          title: '9. Webhook Alerts (Discord / Telegram)',
+          desc: 'Link a Discord channel or Telegram bot via webhooks. Receive styled notifications whenever a server starts, stops, crashes, or performs a scheduled restart.',
+          commands: [
+            { cmd: 'lserver webhook set <url>', desc: 'Set Discord or Telegram webhook URL' },
+            { cmd: 'lserver webhook test', desc: 'Send a test webhook alert' }
+          ]
+        }
+      ]
+    },
+    pt: {
+      hero_title: '⚡ O que é o LServer e para que serve?',
+      hero_desc: 'O LServer é um gerenciador moderno e ultrarrápido de processos e servidores 24/7 para Linux (VPS e dedicados). Permite criar, iniciar, parar e gerenciar servidores de Minecraft (Paper, Purpur, Velocity, BungeeCord), NodeJS, Python e bots sem Docker ou ferramentas pesadas, com consumo mínimo de recursos.',
+      topics: [
+        {
+          icon: '🖥️',
+          title: '1. Nós de Servidor',
+          desc: 'Cada servidor gerenciado é um "Nó" isolado com sua própria pasta, arquivos e script de inicialização (start.sh). O loop de keep-alive mantém o servidor ativo 24/7 mesmo após fechar a sessão SSH.',
+          commands: [
+            { cmd: 'lserver -c <nó>', desc: 'Cria um novo nó de servidor' },
+            { cmd: 'lserver -p <nó>', desc: 'Inicia o servidor em modo 24/7' },
+            { cmd: 'lserver -d <nó>', desc: 'Para o servidor com segurança' }
+          ]
+        },
+        {
+          icon: '👥',
+          title: '2. Grupos de Nós',
+          desc: 'Perfeito para redes de Minecraft (Proxy Velocity + Lobby + Survival). Agrupe servidores sob o mesmo nome para ligar ou desligar toda a rede com um único clique.',
+          commands: [
+            { cmd: 'lserver group create <nome>', desc: 'Cria um grupo de servidores' },
+            { cmd: 'lserver group add <grupo> <nó>', desc: 'Adiciona um nó ao grupo' },
+            { cmd: 'lserver group start <grupo>', desc: 'Inicia todos os servidores do grupo' }
+          ]
+        },
+        {
+          icon: '📁',
+          title: '3. Gerenciador de Arquivos Web',
+          desc: 'Sem necessidade de FileZilla ou SFTP. Na aba "Arquivos", arraste e solte arquivos do seu computador, crie pastas e edite configurações (server.properties, config.yml, etc.) diretamente no navegador.',
+          commands: [
+            { cmd: 'Drag & Drop', desc: 'Arraste arquivos para enviar diretamente' },
+            { cmd: 'Editor Web', desc: 'Edite qualquer arquivo de texto com syntax-highlighting' }
+          ]
+        },
+        {
+          icon: '📋',
+          title: '4. Console ao Vivo e Comandos',
+          desc: 'Veja o log do servidor em tempo real com cores nítidas e envie comandos para o servidor (ex: "op jogador", "reload", "say Olá") diretamente pelo painel web.',
+          commands: [
+            { cmd: 'lserver -e <nó>', desc: 'Console interativo no terminal SSH' },
+            { cmd: 'Painel Web -> Logs', desc: 'Console ao vivo no navegador' }
+          ]
+        },
+        {
+          icon: '☕',
+          title: '5. Modelos e Flags Aikar',
+          desc: 'Modelos pré-otimizados para Paper, Purpur, Velocity, Bungee, NodeJS e Python. Em servidores Java, aplica as consagradas flags de Aikar com Garbage Collector G1 para eliminar lag.',
+          commands: [
+            { cmd: 'lserver -c lobby --template minecraft', desc: 'Cria com flags JVM de Aikar' },
+            { cmd: 'lserver -o <nó>', desc: 'Edita o script start.sh' }
+          ]
+        },
+        {
+          icon: '❤️',
+          title: '6. Auto-Heal (Watchdog 24/7)',
+          desc: 'O serviço de vigilância monitora seus servidores continuamente. Se um servidor cair por erro ou crash, o Auto-Heal o reinicia em segundos e envia uma notificação.',
+          commands: [
+            { cmd: 'lserver -a <nó>', desc: 'Ativa o reinício automático' },
+            { cmd: 'lserver daemon start', desc: 'Inicia o vigilante em background' }
+          ]
+        },
+        {
+          icon: '💾',
+          title: '7. Backups e Reinícios Diários',
+          desc: 'Programe reinícios diários (ex: às 04:00 AM) para liberar memória RAM e gere cópias de segurança compactadas em ZIP com retenção automática.',
+          commands: [
+            { cmd: 'lserver -r <nó> 04:00', desc: 'Programa reinício diário às 4h' },
+            { cmd: 'lserver -b <nó>', desc: 'Menu de backups manuais e automáticos' }
+          ]
+        },
+        {
+          icon: '👤',
+          title: '8. Acesso VPS e Multi-Contas',
+          desc: 'O LServer descobre automaticamente o IP público da sua VPS para facilitar o acesso remoto. Crie várias contas com senhas protegidas por criptografia SHA-256.',
+          commands: [
+            { cmd: 'lserver web start', desc: 'Inicia o painel web privado' },
+            { cmd: 'lserver web user add <usuário>', desc: 'Cria uma conta autorizada' }
+          ]
+        },
+        {
+          icon: '🔔',
+          title: '9. Alertas Webhook (Discord / Telegram)',
+          desc: 'Conecte um canal do Discord ou bot do Telegram para receber alertas instantâneos sempre que um servidor iniciar, parar, travar ou reiniciar.',
+          commands: [
+            { cmd: 'lserver webhook set <url>', desc: 'Define a URL do webhook' },
+            { cmd: 'lserver webhook test', desc: 'Envia um alerta de teste' }
+          ]
+        }
+      ]
+    },
+    fr: {
+      hero_title: '⚡ Qu’est-ce que LServer et à quoi sert-il ?',
+      hero_desc: 'LServer est un gestionnaire moderne et ultra-rapide de serveurs et processus 24/7 pour Linux (VPS et dédiés). Il vous permet de créer, démarrer, arrêter et gérer vos serveurs Minecraft (Paper, Purpur, Velocity, BungeeCord), NodeJS, Python et bots sans Docker ni outils lourds, avec une consommation minimale.',
+      topics: [
+        {
+          icon: '🖥️',
+          title: '1. Nœuds de Serveur',
+          desc: 'Chaque serveur géré est un "Nœud" indépendant avec son propre dossier, ses logs et son script start.sh. La boucle de keep-alive maintient le serveur actif 24h/24 même après déconnexion SSH.',
+          commands: [
+            { cmd: 'lserver -c <nœud>', desc: 'Créer un nouveau nœud de serveur' },
+            { cmd: 'lserver -p <nœud>', desc: 'Démarrer le serveur 24/7' },
+            { cmd: 'lserver -d <nœud>', desc: 'Arrêter le serveur proprement' }
+          ]
+        },
+        {
+          icon: '👥',
+          title: '2. Groupes de Nœuds',
+          desc: 'Idéal pour les réseaux Minecraft (Proxy Velocity + Lobby + Survie). Regroupez plusieurs serveurs sous un même nom pour démarrer ou arrêter tout le réseau en un clic.',
+          commands: [
+            { cmd: 'lserver group create <nom>', desc: 'Créer un groupe de serveurs' },
+            { cmd: 'lserver group add <groupe> <nœud>', desc: 'Ajouter un nœud au groupe' },
+            { cmd: 'lserver group start <groupe>', desc: 'Démarrer tous les serveurs du groupe' }
+          ]
+        },
+        {
+          icon: '📁',
+          title: '3. Gestionnaire de Fichiers Web',
+          desc: 'Plus besoin de FileZilla ou SFTP. Depuis l’onglet "Fichiers", glissez-déposez des fichiers pour les téléverser, créez des dossiers et modifiez les fichiers de configuration (server.properties, config.yml, etc.) directement dans le navigateur.',
+          commands: [
+            { cmd: 'Glisser-Déposer', desc: 'Glissez des fichiers pour les téléverser' },
+            { cmd: 'Éditeur Web', desc: 'Modifiez tout fichier texte avec coloration' }
+          ]
+        },
+        {
+          icon: '📋',
+          title: '4. Console en Direct et Commandes',
+          desc: 'Consultez les logs en temps réel avec des couleurs claires et envoyez des commandes directement au serveur (ex : "op joueur", "reload", "say Bonjour") depuis le panneau web.',
+          commands: [
+            { cmd: 'lserver -e <nœud>', desc: 'Console interactive dans le terminal SSH' },
+            { cmd: 'Panneau Web -> Logs', desc: 'Console en direct dans le navigateur' }
+          ]
+        },
+        {
+          icon: '☕',
+          title: '5. Modèles et Flags Aikar',
+          desc: 'Modèles pré-optimisés pour Paper, Purpur, Velocity, Bungee, NodeJS et Python. Pour Java, application des flags Aikar avec Garbage Collector G1 pour éliminer les ralentissements.',
+          commands: [
+            { cmd: 'lserver -c lobby --template minecraft', desc: 'Créer avec les flags JVM Aikar' },
+            { cmd: 'lserver -o <nœud>', desc: 'Modifier le script start.sh' }
+          ]
+        },
+        {
+          icon: '❤️',
+          title: '6. Auto-Heal (Watchdog 24/7)',
+          desc: 'Le service de surveillance contrôle vos serveurs en permanence. En cas de crash inattendu, Auto-Heal relance le serveur en quelques secondes et envoie une alerte.',
+          commands: [
+            { cmd: 'lserver -a <nœud>', desc: 'Activer le redémarrage automatique' },
+            { cmd: 'lserver daemon start', desc: 'Lancer le démon de surveillance' }
+          ]
+        },
+        {
+          icon: '💾',
+          title: '7. Sauvegardes et Redémarrages Quotidiens',
+          desc: 'Programmez des redémarrages quotidiens (ex : à 04h00) pour libérer la mémoire vive et générez des sauvegardes compressées en ZIP avec rétention.',
+          commands: [
+            { cmd: 'lserver -r <nœud> 04:00', desc: 'Programmer un redémarrage à 4h' },
+            { cmd: 'lserver -b <nœud>', desc: 'Menu de sauvegardes manuelles et auto' }
+          ]
+        },
+        {
+          icon: '👤',
+          title: '8. IP Publique VPS et Multi-Comptes',
+          desc: 'LServer découvre automatiquement l’adresse IP publique de votre VPS pour vous connecter à distance. Créez plusieurs comptes protégés par hachage SHA-256.',
+          commands: [
+            { cmd: 'lserver web start', desc: 'Lancer le panneau web privé' },
+            { cmd: 'lserver web user add <utilisateur>', desc: 'Créer un compte d’accès' }
+          ]
+        },
+        {
+          icon: '🔔',
+          title: '9. Alertes Webhook (Discord / Telegram)',
+          desc: 'Connectez un salon Discord ou un bot Telegram pour recevoir des alertes en temps réel à chaque démarrage, arrêt, plantage ou redémarrage planifié.',
+          commands: [
+            { cmd: 'lserver webhook set <url>', desc: 'Définir l’URL webhook' },
+            { cmd: 'lserver webhook test', desc: 'Envoyer une alerte de test' }
+          ]
+        }
+      ]
+    }
+  };
+
+  function t(k, vars = {}) {
+    const cur = DICT[lang] || DICT.es;
+    let val = cur[k] || DICT.es[k] || k;
+    for (const [vK, vV] of Object.entries(vars)) {
+      val = val.replace(new RegExp(`\\{${vK}\\}`, 'g'), vV);
+    }
+    return val;
+  }
+
+  function renderGuide() {
+    const container = document.getElementById('guide-content');
+    if (!container) return;
+    const g = GUIDE_DATA[lang] || GUIDE_DATA.es;
+
+    container.innerHTML = `
+      <div class="guide-hero">
+        <h2>${g.hero_title}</h2>
+        <p>${g.hero_desc}</p>
+      </div>
+      <div class="guide-grid">
+        ${g.topics.map(top => `
+          <div class="guide-card">
+            <div class="guide-card-header">
+              <div class="guide-card-icon">${top.icon}</div>
+              <div class="guide-card-title">${top.title}</div>
+            </div>
+            <div class="guide-card-desc">${top.desc}</div>
+            <div class="guide-card-commands">
+              ${top.commands.map(c => `
+                <div><code>${c.cmd}</code> <span>• ${c.desc}</span></div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function apply() {
+    const sel = document.getElementById('lang-select');
+    if (sel) sel.value = lang;
+
+    const cur = DICT[lang] || DICT.es;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.dataset.i18n;
+      if (cur[k]) el.innerHTML = cur[k];
+    });
+
+    const searchInput = document.getElementById('nodes-search-input');
+    if (searchInput && cur.search_placeholder) {
+      searchInput.placeholder = cur.search_placeholder;
+    }
+
+    renderGuide();
+    if (window.App && typeof App.renderFilteredNodes === 'function') {
+      App.renderFilteredNodes();
+    }
+  }
+
+  function set(newLang) {
+    if (DICT[newLang]) {
+      lang = newLang;
+      localStorage.setItem('lserver-lang', lang);
+      Sound.click();
+      apply();
+      Toast.info(newLang === 'en' ? 'Language switched to English 🇺🇸' :
+                 newLang === 'pt' ? 'Idioma alterado para Português 🇧🇷' :
+                 newLang === 'fr' ? 'Langue changée en Français 🇫🇷' :
+                 'Idioma cambiado a Español 🇪🇸');
+    }
+  }
+
+  return {
+    init() { apply(); },
+    t, set, get() { return lang; },
+    renderGuide, apply
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════════
    THEME MANAGER
 ═══════════════════════════════════════════════════════════ */
 const Theme = (() => {
@@ -923,6 +1869,7 @@ const Theme = (() => {
     get()    { return current; }
   };
 })();
+
 
 /* ═══════════════════════════════════════════════════════════
    TOASTS ("localhost dice:")
@@ -1484,7 +2431,7 @@ function renderCard(n) {
       </div>
       <div style="display:flex;align-items:center;gap:.4rem">
         <span class="status-badge ${n.status}">${online ? 'Online' : 'Offline'}</span>
-        <button class="btn btn-ghost btn-sm btn-icon" title="Eliminar servidor" onclick="NodeActions.delete('${n.name}')" style="color:var(--danger)">🗑️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" title="Eliminar" onclick="NodeActions.delete('${n.name}')" style="color:var(--danger)">🗑️</button>
       </div>
     </div>
 
@@ -1492,28 +2439,28 @@ function renderCard(n) {
 
     <div class="mini-stats">
       <div class="mini-stat">
-        <span class="mini-stat-label">Uptime</span>
+        <span class="mini-stat-label">${I18n.t('card_uptime')}</span>
         <span class="mini-stat-val">${n.uptime || '—'}</span>
       </div>
       <div class="mini-stat">
-        <span class="mini-stat-label">Puerto</span>
+        <span class="mini-stat-label">${I18n.t('card_port')}</span>
         <span class="mini-stat-val">${n.ports || '—'}</span>
       </div>
       <div class="mini-stat" style="grid-column:1/-1">
-        <span class="mini-stat-label">Ruta</span>
+        <span class="mini-stat-label">${I18n.t('card_path')}</span>
         <span class="mini-stat-val" style="font-size:.72rem;color:var(--text-2)">${path_short}</span>
       </div>
     </div>
 
     <div class="card-actions">
       ${online
-        ? `<button class="btn btn-danger btn-sm" onclick="NodeActions.stop('${n.name}',this)">⏹ Detener</button>
-           <button class="btn btn-warn btn-sm"   onclick="NodeActions.restart('${n.name}',this)">🔄 Restart</button>
-           <button class="btn btn-ghost btn-sm btn-icon" title="Matar (forzar)" onclick="NodeActions.kill('${n.name}',this)">💀</button>`
-        : `<button class="btn btn-success btn-sm" onclick="NodeActions.start('${n.name}',this)">▶ Encender</button>`
+        ? `<button class="btn btn-danger btn-sm" onclick="NodeActions.stop('${n.name}',this)">${I18n.t('btn_stop')}</button>
+           <button class="btn btn-warn btn-sm"   onclick="NodeActions.restart('${n.name}',this)">${I18n.t('btn_restart')}</button>
+           <button class="btn btn-ghost btn-sm btn-icon" title="Kill" onclick="NodeActions.kill('${n.name}',this)">${I18n.t('btn_kill')}</button>`
+        : `<button class="btn btn-success btn-sm" onclick="NodeActions.start('${n.name}',this)">${I18n.t('btn_start')}</button>`
       }
-      <button class="btn btn-ghost btn-sm" onclick="Modal.open('${n.name}', 'logs')">📋 Logs</button>
-      <button class="btn btn-ghost btn-sm" onclick="Modal.open('${n.name}', 'files')">📁 Archivos</button>
+      <button class="btn btn-ghost btn-sm" onclick="Modal.open('${n.name}', 'logs')">${I18n.t('btn_logs')}</button>
+      <button class="btn btn-ghost btn-sm" onclick="Modal.open('${n.name}', 'files')">${I18n.t('btn_files')}</button>
     </div>
   </div>`;
 }
@@ -1548,7 +2495,7 @@ const NodeActions = (() => {
       });
     },
     async kill(name, btn) {
-      if (!confirm(`¿Matar (forzar cierre) de "${name}"?\nEsto puede causar pérdida de datos.`)) return;
+      if (!confirm(I18n.t('confirm_kill_node', { name }))) return;
       Sound.kill();
       await withLoading(btn, async () => {
         const r = await API.kill(name);
@@ -1565,7 +2512,7 @@ const NodeActions = (() => {
       });
     },
     async delete(name) {
-      const delFiles = confirm(`¿Eliminar el servidor "${name}"?\n\nPulsa ACEPTAR si también deseas borrar la CARPETA FÍSICA con todos sus archivos.\nPulsa CANCELAR para conservar los archivos.`);
+      const delFiles = confirm(I18n.t('confirm_delete_node', { name }));
       Sound.warning();
       try {
         const r = await API.deleteNode(name, delFiles);
@@ -1597,11 +2544,11 @@ function renderGroup(g) {
         <span class="tag">${g.active || 0}/${g.total || 0} online</span>
       </div>
       <div class="group-actions">
-        <button class="btn btn-success btn-sm" onclick="GroupActions.start('${g.name}',this)">▶ Encender todo</button>
-        <button class="btn btn-danger btn-sm"  onclick="GroupActions.stop('${g.name}',this)">⏹ Apagar todo</button>
+        <button class="btn btn-success btn-sm" onclick="GroupActions.start('${g.name}',this)">${I18n.t('btn_start_group')}</button>
+        <button class="btn btn-danger btn-sm"  onclick="GroupActions.stop('${g.name}',this)">${I18n.t('btn_stop_group')}</button>
       </div>
     </div>
-    <div class="group-nodes">${pills || '<span style="color:var(--text-3);font-size:.82rem">Sin nodos asignados</span>'}</div>
+    <div class="group-nodes">${pills || '<span style="color:var(--text-3);font-size:.8rem">Sin nodos</span>'}</div>
   </div>`;
 }
 
@@ -1681,8 +2628,7 @@ const UserManager = (() => {
       if (!users.length) {
         tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:2.5rem;color:var(--text-2)">
           <div style="font-size:2rem;margin-bottom:.5rem">🔓</div>
-          <b>No hay cuentas configuradas.</b><br>
-          <span style="font-size:.8rem;color:var(--warning)">El panel web tiene acceso abierto sin contraseña. Crea una cuenta para protegerlo.</span>
+          ${I18n.t('empty_users_desc')}
         </td></tr>`;
         return;
       }
@@ -1708,7 +2654,7 @@ const UserManager = (() => {
 
   async function remove(username) {
     Sound.warning();
-    if (!confirm(`¿Estás seguro de que deseas eliminar la cuenta '${username}'?`)) return;
+    if (!confirm(I18n.t('confirm_delete_user', { name: username }))) return;
     try {
       const r = await API.deleteUser(username);
       if (r.status === 'ok') {
@@ -1731,6 +2677,9 @@ const UserManager = (() => {
 const App = (() => {
   const REFRESH_INTERVAL = 5000;
   let prevOnlineCount = null;
+  let allNodes = [];
+  let currentFilter = 'all';
+  let currentSearch = '';
 
   function animateRefreshBar(duration) {
     const fill = document.getElementById('refresh-fill');
@@ -1741,10 +2690,67 @@ const App = (() => {
     });
   }
 
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderFilteredNodes();
+  }
+
+  function applyFilter() {
+    currentSearch = (document.getElementById('nodes-search-input')?.value || '').trim().toLowerCase();
+    renderFilteredNodes();
+  }
+
+  function renderFilteredNodes() {
+    const grid = document.getElementById('nodes-grid');
+    if (!grid) return;
+
+    const allCount = allNodes.length;
+    const onlineCount = allNodes.filter(n => n.status === 'online').length;
+    const offlineCount = allNodes.length - onlineCount;
+
+    const fcAll = document.getElementById('fc-all-count');
+    const fcOn = document.getElementById('fc-online-count');
+    const fcOff = document.getElementById('fc-offline-count');
+    if (fcAll) fcAll.textContent = `(${allCount})`;
+    if (fcOn) fcOn.textContent = `(${onlineCount})`;
+    if (fcOff) fcOff.textContent = `(${offlineCount})`;
+
+    if (!allNodes.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="emoji">📭</div>
+        <h3>${I18n.t('empty_nodes_title')}</h3>
+        <p>${I18n.t('empty_nodes_desc')}</p>
+      </div>`;
+      return;
+    }
+
+    let filtered = allNodes;
+    if (currentFilter === 'online') filtered = filtered.filter(n => n.status === 'online');
+    else if (currentFilter === 'offline') filtered = filtered.filter(n => n.status !== 'online');
+
+    if (currentSearch) {
+      filtered = filtered.filter(n => n.name.toLowerCase().includes(currentSearch));
+    }
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="emoji">🔍</div>
+        <h3>${I18n.t('no_results_title')}</h3>
+        <p>${I18n.t('no_results_desc')}</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(renderCard).join('');
+  }
+
   async function loadNodes() {
     try {
       const data = await API.nodes();
       const nodes = data.nodes || [];
+      allNodes = nodes;
       const online  = nodes.filter(n => n.status === 'online').length;
       const offline = nodes.length - online;
 
@@ -1760,16 +2766,7 @@ const App = (() => {
       }
       prevOnlineCount = online;
 
-      const grid = document.getElementById('nodes-grid');
-      if (!nodes.length) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-          <div class="emoji">📭</div>
-          <h3>No hay servidores creados</h3>
-          <p>Haz clic en el botón <b>"+ Crear Servidor"</b> arriba para crear el primero.</p>
-        </div>`;
-      } else {
-        grid.innerHTML = nodes.map(renderCard).join('');
-      }
+      renderFilteredNodes();
     } catch(e) {
       document.getElementById('gs-total').textContent = 'Error';
     }
@@ -1783,8 +2780,8 @@ const App = (() => {
       if (!groups.length) {
         grid.innerHTML = `<div class="empty-state">
           <div class="emoji">👥</div>
-          <h3>No hay grupos</h3>
-          <p>Crea uno en la CLI con <code>lserver group create &lt;nombre&gt;</code></p>
+          <h3>${I18n.t('empty_groups_title')}</h3>
+          <p>${I18n.t('empty_groups_desc')}</p>
         </div>`;
       } else {
         grid.innerHTML = groups.map(renderGroup).join('');
@@ -1802,7 +2799,7 @@ const App = (() => {
     setInterval(refresh, REFRESH_INTERVAL);
   }
 
-  return { refresh, startAutoRefresh };
+  return { refresh, startAutoRefresh, setFilter, applyFilter, renderFilteredNodes };
 })();
 
 /* ═══════════════════════════════════════════════════════════
@@ -1847,6 +2844,7 @@ document.getElementById('theme-toggle').addEventListener('click', Theme.toggle.b
 
 // Inicio
 Theme.init();
+I18n.init();
 FileManager.init();
 App.startAutoRefresh();
 
