@@ -5,25 +5,28 @@
 # ─────────────────────────────────────────────────────────────────────────────
 MENU = [
     {
-        'key':   'mc',
-        'label': '⛏  Minecraft  (Paper, Purpur, Spigot, Vanilla)',
+        'key':   'proxy',
+        'label': '🔀  Proxy / Entrada de red  (BungeeCord · Velocity)',
+        'hint':  'El servidor que recibe a los jugadores y los distribuye a las modalidades.',
         'sub': [
-            ('paper-lobby',    'Paper / Purpur  —  Lobby / Hub         (1G – 3G)'),
-            ('paper-survival', 'Paper / Purpur  —  Survival / Minijuegos (1G – 5G)'),
-            ('paper-basic',    'Paper / Purpur  —  Básico              (1G – 2G)'),
+            ('bungeecord', 'BungeeCord  —  Proxy principal de la red  (1G – 2G)'),
+            ('velocity',   'Velocity    —  Proxy moderno y más rápido  (1G – 2G)'),
         ]
     },
     {
-        'key':   'proxy',
-        'label': '🔀  Proxy Minecraft  (BungeeCord, Velocity)',
+        'key':   'mc',
+        'label': '⛏  Modalidades / Servidores de juego  (Paper · Purpur)',
+        'hint':  'Los servidores internos: Lobby, Survival, Minijuegos, Skyblock, etc.',
         'sub': [
-            ('bungeecord', 'BungeeCord  (1G – 2G)'),
-            ('velocity',   'Velocity    (1G – 2G)'),
+            ('paper-lobby',    'Lobby / Hub          — Sala de espera principal  (1G – 3G)'),
+            ('paper-survival', 'Survival / Minijuego — Mundo de juego intenso    (1G – 5G)'),
+            ('paper-basic',    'Básico               — Modalidad ligera          (1G – 2G)'),
         ]
     },
     {
         'key':   'web',
         'label': '🌐  Proyectos Web / SaaS',
+        'hint':  'APIs, apps Node.js, Python, Next.js, etc.',
         'sub': [
             ('nodejs',     'Node.js  (node index.js)'),
             ('python',     'Python   (python3 app.py)'),
@@ -35,6 +38,7 @@ MENU = [
     {
         'key':   'other',
         'label': '📦  Otro / Personalizado',
+        'hint':  'Plantilla vacía, la edito yo mismo.',
         'sub': [
             ('custom', 'Plantilla vacía — la edito yo mismo'),
         ]
@@ -421,15 +425,11 @@ def interactive_template_selector():
     """
     from lserver.ui import (print_menu, GOLD, ORANGE, LIGHT_ORANGE,
                              GRAY, WHITE, GREEN, CYAN, RESET, BOLD, _clean)
-    import re
-
-    width = 60
-    c = LIGHT_ORANGE
 
     # ── Paso 1: categoría ──────────────────────────────────────────────────
     cat_options = [(str(i + 1), cat['label']) for i, cat in enumerate(MENU)]
     cat_options.append(('0', 'Cancelar'))
-    cat_ans = print_menu(title='¿QUÉ TIPO DE SERVIDOR VAS A USAR?', options=cat_options)
+    cat_ans = print_menu(title='¿QUÉ TIPO DE SERVIDOR VAS A CREAR?', options=cat_options)
 
     if cat_ans == '0' or cat_ans is None:
         return None
@@ -442,10 +442,15 @@ def interactive_template_selector():
     except (ValueError, IndexError):
         return None
 
+    # Mostrar hint explicativo de la categoría elegida
+    hint = cat.get('hint', '')
+    if hint:
+        print(f"\n  {CYAN}ℹ  {hint}{RESET}\n")
+
     # ── Paso 2: sub-tipo ──────────────────────────────────────────────────
     sub_options = [(str(i + 1), desc) for i, (_, desc) in enumerate(cat['sub'])]
     sub_options.append(('0', 'Volver atrás'))
-    sub_ans = print_menu(title=f'ELIGE EL SUB-TIPO — {cat["label"]}', options=sub_options)
+    sub_ans = print_menu(title='ELIGE EL TIPO ESPECÍFICO', options=sub_options)
 
     if sub_ans == '0' or sub_ans is None:
         return interactive_template_selector()  # volver al menú principal
