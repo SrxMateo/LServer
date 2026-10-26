@@ -85,6 +85,9 @@ class LServerHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/logs/'):
             node_name = path.split('/api/logs/', 1)[1]
             self._send_json(api.api_logs(node_name))
+        elif path.startswith('/api/startsh/'):
+            node_name = path.split('/api/startsh/', 1)[1]
+            self._send_json(api.api_get_startsh(node_name))
         else:
             # Servir archivos estaticos
             safe_path = path.lstrip('/')
@@ -115,6 +118,21 @@ class LServerHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/kill/'):
             node_name = path.split('/api/kill/', 1)[1]
             self._send_json(api.api_kill(node_name))
+        elif path.startswith('/api/restart/'):
+            node_name = path.split('/api/restart/', 1)[1]
+            self._send_json(api.api_restart(node_name))
+        elif path.startswith('/api/startsh/'):
+            node_name = path.split('/api/startsh/', 1)[1]
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                body = self.rfile.read(content_length)
+                try:
+                    data = json.loads(body)
+                    self._send_json(api.api_save_startsh(node_name, data.get('content', '')))
+                except json.JSONDecodeError:
+                    self._send_json({'error': 'Invalid JSON'}, 400)
+            else:
+                self._send_json({'error': 'Missing body'}, 400)
         elif path.startswith('/api/group/start/'):
             gname = path.split('/api/group/start/', 1)[1]
             self._send_json(api.api_group_start(gname))

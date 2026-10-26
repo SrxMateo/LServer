@@ -1,880 +1,1278 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LServer - Control Panel</title>
-    <!-- Fuentes modernas: Onest y Fira Code para logs -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Onest:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            /* Paleta de colores Premium */
-            --bg-base: #050505;
-            --bg-surface: #0a0a0a;
-            --bg-card: rgba(18, 18, 18, 0.6);
-            --bg-hover: rgba(30, 30, 30, 0.8);
-            
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.15);
-            
-            /* Lumax Colors - Oro elegante y Naranja vibrante */
-            --brand-primary: #FFB347;
-            --brand-secondary: #FF7B00;
-            --brand-gradient: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-            --brand-glow: rgba(255, 179, 71, 0.15);
-            
-            /* Estados */
-            --success: #10B981;
-            --success-bg: rgba(16, 185, 129, 0.1);
-            --danger: #EF4444;
-            --danger-bg: rgba(239, 68, 68, 0.1);
-            --info: #3B82F6;
-            
-            /* Tipografia */
-            --text-main: #FFFFFF;
-            --text-muted: #A1A1AA;
-            --text-faint: #52525B;
-            
-            /* Efectos */
-            --blur: blur(12px);
-            --shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.5);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LServer — Panel de Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VARIABLES — DARK & LIGHT THEMES
+═══════════════════════════════════════════════════════════ */
+:root {
+  --brand:        #FF8C00;
+  --brand-light:  #FFB347;
+  --brand-dark:   #E07000;
+  --brand-glow:   rgba(255,140,0,0.18);
+  --success:      #22C55E;
+  --danger:       #EF4444;
+  --warning:      #F59E0B;
+  --info:         #3B82F6;
+  --radius-sm:    8px;
+  --radius:       14px;
+  --radius-lg:    20px;
+  --transition:   0.25s cubic-bezier(.4,0,.2,1);
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Onest', sans-serif;
-        }
+[data-theme="dark"] {
+  --bg:           #080B10;
+  --bg-2:         #0D1117;
+  --bg-3:         #161B22;
+  --bg-4:         #1C2128;
+  --border:       rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text:         #F0F6FC;
+  --text-2:       #8B949E;
+  --text-3:       #484F58;
+  --shadow:       0 8px 32px rgba(0,0,0,0.5);
+  --card-bg:      rgba(22,27,34,0.85);
+}
 
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 15% 50%, var(--brand-glow), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%);
-            background-attachment: fixed;
-        }
+[data-theme="light"] {
+  --bg:           #F6F8FA;
+  --bg-2:         #FFFFFF;
+  --bg-3:         #F0F2F5;
+  --bg-4:         #E6E8EB;
+  --border:       rgba(0,0,0,0.08);
+  --border-hover: rgba(0,0,0,0.16);
+  --text:         #1A1E27;
+  --text-2:       #57606A;
+  --text-3:       #AFB8C1;
+  --shadow:       0 4px 20px rgba(0,0,0,0.10);
+  --card-bg:      rgba(255,255,255,0.95);
+}
 
-        /* Nav Header Elegante */
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(5, 5, 5, 0.7);
-            backdrop-filter: var(--blur);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* ═══════════════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+  overflow-x: hidden;
+}
 
-        .brand-logo {
-            width: 36px;
-            height: 36px;
-            background: var(--brand-gradient);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 20px;
-            color: var(--bg-base);
-            box-shadow: 0 0 15px var(--brand-glow);
-        }
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse 60% 40% at 10% 0%, rgba(255,140,0,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 90% 100%, rgba(59,130,246,0.04) 0%, transparent 70%);
+}
 
-        .brand-text h1 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+/* ═══════════════════════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════════════════════ */
+.navbar {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  padding: 0 1.5rem;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background var(--transition), border-color var(--transition);
+}
 
-        .brand-text p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 1.1rem; letter-spacing: -0.4px;
+}
 
-        .tabs {
-            display: flex;
-            gap: 1rem;
-            background: rgba(255,255,255,0.03);
-            padding: 4px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-        }
+.nav-logo {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 0 14px var(--brand-glow);
+}
 
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 6px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+.nav-logo span { font-size: 18px; }
 
-        .tab-btn:hover { color: #fff; }
-        .tab-btn.active {
-            background: var(--brand-gradient);
-            color: var(--bg-base);
-            box-shadow: 0 2px 10px var(--brand-glow);
-        }
+.nav-tabs {
+  display: flex; gap: 4px;
+  background: var(--bg-3);
+  padding: 3px; border-radius: 10px;
+  border: 1px solid var(--border);
+}
 
-        .status-pill {
-            background: var(--success-bg);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            color: var(--success);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            letter-spacing: 0.5px;
-        }
+.nav-tab {
+  background: transparent; border: none;
+  color: var(--text-2); font-family: inherit;
+  padding: 5px 14px; border-radius: 7px;
+  font-size: .85rem; font-weight: 500;
+  cursor: pointer; transition: all var(--transition);
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-tab:hover { color: var(--text); background: var(--border); }
+.nav-tab.active {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 2px 10px var(--brand-glow);
+}
 
-        .status-pill::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: var(--success);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--success);
-        }
+.nav-right { display: flex; align-items: center; gap: 10px; }
 
-        /* Container Principal */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
+/* Pill de estado del servidor */
+.server-status {
+  display: flex; align-items: center; gap: 7px;
+  font-size: .78rem; font-weight: 600;
+  padding: 5px 12px; border-radius: 20px;
+  border: 1px solid;
+  letter-spacing: .3px;
+}
+.server-status.ok {
+  color: var(--success);
+  border-color: rgba(34,197,94,0.25);
+  background: rgba(34,197,94,0.08);
+}
+.server-status .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { box-shadow: 0 0 0 0 currentColor; }
+  50%      { box-shadow: 0 0 0 4px transparent; }
+}
 
-        .page-header {
-            margin-bottom: 2.5rem;
-        }
+/* Botón de tema */
+.theme-btn {
+  width: 36px; height: 36px;
+  background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: 9px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; transition: all var(--transition);
+}
+.theme-btn:hover { background: var(--bg-4); transform: rotate(20deg); }
 
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #fff, #a1a1aa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+/* ═══════════════════════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════════════════════ */
+.main { max-width: 1440px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-        .page-subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
+.page-header {
+  margin-bottom: 1.75rem;
+  display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
 
-        /* Grid de Nodos */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 1.5rem;
-        }
+.page-title {
+  font-size: 1.6rem; font-weight: 700; letter-spacing: -.6px;
+  line-height: 1.2;
+}
+.page-title span { color: var(--brand); }
+.page-sub { color: var(--text-2); font-size: .88rem; margin-top: 4px; }
 
-        /* Tarjeta de Nodo */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: var(--blur);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
+.header-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 
-        .card:hover {
-            border-color: var(--border-hover);
-            transform: translateY(-4px);
-            background: var(--bg-hover);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.6), 0 0 0 1px var(--border-hover);
-        }
+/* Botón general */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: .45rem .9rem; border-radius: var(--radius-sm);
+  font-family: inherit; font-size: .82rem; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all var(--transition); white-space: nowrap;
+  position: relative; overflow: hidden;
+}
+.btn::after {
+  content:''; position:absolute; inset:0;
+  background: rgba(255,255,255,0.07);
+  opacity:0; transition: opacity var(--transition);
+}
+.btn:hover::after { opacity:1; }
+.btn:active { transform: scale(.97); }
 
-        /* Glow superior en la tarjeta */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--brand-gradient);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .card:hover::before { opacity: 1; }
+.btn-primary { background: var(--brand); color: #fff; box-shadow: 0 2px 12px var(--brand-glow); }
+.btn-primary:hover { background: var(--brand-light); }
+.btn-ghost { background: var(--bg-3); color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--border-hover); }
+.btn-danger { background: rgba(239,68,68,.1); color: var(--danger); border-color: rgba(239,68,68,.2); }
+.btn-danger:hover { background: rgba(239,68,68,.2); }
+.btn-success { background: rgba(34,197,94,.1); color: var(--success); border-color: rgba(34,197,94,.2); }
+.btn-success:hover { background: rgba(34,197,94,.2); }
+.btn-warn { background: rgba(245,158,11,.1); color: var(--warning); border-color: rgba(245,158,11,.2); }
+.btn-warn:hover { background: rgba(245,158,11,.2); }
+.btn-sm { padding: .3rem .65rem; font-size: .76rem; }
+.btn-icon { padding: .38rem .5rem; }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
 
-        .card.online { border-top-color: var(--success); }
-        .card.offline { border-top-color: var(--text-faint); }
-        .card.online::before { background: var(--success); }
+/* ═══════════════════════════════════════════════════════════
+   GRID DE NODOS
+═══════════════════════════════════════════════════════════ */
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
+/* ── Tarjeta de Nodo ── */
+.node-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  backdrop-filter: blur(12px);
+  transition: all var(--transition);
+  box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.node-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2.5px;
+  background: var(--brand); opacity:0; transition: opacity var(--transition);
+}
+.node-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+.node-card:hover::before { opacity:1; }
+.node-card.online::before { opacity:1; background: var(--success); }
+.node-card.offline::before { opacity:1; background: var(--text-3); }
 
-        .node-info h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-            letter-spacing: -0.5px;
-        }
+/* Header de la card */
+.card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 1.1rem; gap: .5rem;
+}
+.node-name {
+  font-size: 1.05rem; font-weight: 700; letter-spacing: -.3px;
+  display: flex; align-items: center; gap: 7px;
+}
+.node-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+.tag {
+  font-size: .68rem; padding: 2px 7px; border-radius: 5px;
+  background: var(--bg-4); border: 1px solid var(--border);
+  color: var(--text-2); font-weight: 500;
+  display: flex; align-items: center; gap: 3px;
+}
 
-        .node-tags {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+/* Badge de estado */
+.status-badge {
+  font-size: .68rem; font-weight: 700; letter-spacing: .4px;
+  padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+  text-transform: uppercase; border: 1px solid;
+}
+.status-badge.online { color: var(--success); border-color: rgba(34,197,94,.25); background: rgba(34,197,94,.1); }
+.status-badge.offline { color: var(--text-3); border-color: var(--border); background: var(--bg-4); }
 
-        .tag {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+/* Métricas con barras */
+.metrics { margin-bottom: 1.1rem; display: flex; flex-direction: column; gap: .6rem; }
+.metric-row { display: flex; flex-direction: column; gap: 4px; }
+.metric-label-row {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.metric-name { font-size: .7rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .8px; }
+.metric-val { font-size: .78rem; font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 500; }
+.metric-bar {
+  height: 4px; border-radius: 4px; background: var(--bg-4);
+  overflow: hidden;
+}
+.metric-fill {
+  height: 100%; border-radius: 4px;
+  transition: width .6s ease, background .3s;
+}
+.metric-fill.low   { background: var(--success); }
+.metric-fill.mid   { background: var(--warning); }
+.metric-fill.high  { background: var(--danger); }
 
-        .state-badge {
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        
-        .state-online { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
-        .state-offline { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border); }
+/* Mini-stats (uptime, puerto) */
+.mini-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: .5rem; margin-bottom: 1.1rem;
+  background: var(--bg-3); border-radius: var(--radius-sm);
+  padding: .7rem .85rem; border: 1px solid var(--border);
+}
+.mini-stat { display: flex; flex-direction: column; gap: 2px; }
+.mini-stat-label { font-size: .65rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: .6px; }
+.mini-stat-val { font-size: .85rem; font-family: 'JetBrains Mono', monospace; font-weight: 500; color: var(--text); }
 
-        /* Metricas */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid rgba(255,255,255,0.03);
-        }
+/* Botones de acción */
+.card-actions { display: flex; gap: .45rem; flex-wrap: wrap; }
+.card-actions .btn { flex: 1; min-width: 0; justify-content: center; }
 
-        .metric {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+/* ═══════════════════════════════════════════════════════════
+   GRUPOS TAB
+═══════════════════════════════════════════════════════════ */
+.groups-grid { display: flex; flex-direction: column; gap: 1rem; }
+.group-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem;
+  backdrop-filter: blur(12px); box-shadow: var(--shadow);
+  transition: border-color var(--transition);
+}
+.group-card:hover { border-color: var(--border-hover); }
+.group-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem; gap: 1rem;
+}
+.group-name { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.group-actions { display: flex; gap: .4rem; }
+.group-nodes { display: flex; flex-wrap: wrap; gap: .5rem; }
+.group-node-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px;
+  background: var(--bg-4); border: 1px solid var(--border);
+  font-size: .78rem; font-weight: 500;
+}
+.group-node-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+.group-node-pill .dot.on  { background: var(--success); }
+.group-node-pill .dot.off { background: var(--text-3); }
 
-        .metric-label {
-            font-size: 0.7rem;
-            color: var(--text-faint);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
+/* ═══════════════════════════════════════════════════════════
+   MODAL — LOGS
+═══════════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity var(--transition);
+}
+.modal-overlay.open { display: flex; opacity: 1; }
 
-        .metric-val {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--text-main);
-            font-family: 'Fira Code', monospace;
-        }
-        .metric-val.highlight { color: var(--brand-primary); }
+.modal {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: min(960px, 95vw); height: 82vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  transform: scale(.97) translateY(10px);
+  transition: transform var(--transition);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
 
-        /* Botones */
-        .actions {
-            display: flex;
-            gap: 0.5rem;
-        }
+.modal-header {
+  padding: .95rem 1.25rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.modal-title { font-size: .95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.modal-title .accent { color: var(--brand); }
+.modal-actions { display: flex; gap: .5rem; align-items: center; }
 
-        .btn {
-            flex: 1;
-            padding: 0.6rem 0;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
+/* Tabs dentro del modal */
+.modal-tabs {
+  display: flex; gap: 4px;
+  background: var(--bg-3); padding: 3px; border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.modal-tab {
+  background: transparent; border: none; font-family: inherit;
+  color: var(--text-2); padding: 4px 12px; border-radius: 5px;
+  font-size: .78rem; font-weight: 500; cursor: pointer;
+  transition: all var(--transition);
+}
+.modal-tab:hover { color: var(--text); }
+.modal-tab.active { background: var(--brand); color: #fff; }
 
-        .btn:active { transform: scale(0.97); }
+.modal-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 
-        .btn-primary {
-            background: var(--brand-gradient);
-            color: var(--bg-base);
-            box-shadow: 0 4px 12px var(--brand-glow);
-        }
-        .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 6px 16px var(--brand-glow); }
+/* Panel de logs */
+.log-area {
+  flex: 1; overflow-y: auto; padding: 1rem 1.25rem;
+  font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+  line-height: 1.7; color: var(--text);
+  background: var(--bg);
+  white-space: pre-wrap; word-break: break-all;
+}
+.log-area::-webkit-scrollbar { width: 6px; }
+.log-area::-webkit-scrollbar-track { background: transparent; }
+.log-area::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
 
-        .btn-danger {
-            background: transparent;
-            color: var(--danger);
-            border: 1px solid var(--danger-bg);
-        }
-        .btn-danger:hover { background: var(--danger-bg); }
+/* Coloreado de logs */
+.log-area .l-info  { color: #58A6FF; }
+.log-area .l-warn  { color: #F59E0B; }
+.log-area .l-error { color: #EF4444; }
+.log-area .l-ok    { color: #22C55E; }
+.log-area .l-dim   { color: var(--text-2); }
 
-        .btn-secondary {
-            background: rgba(255,255,255,0.05);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+/* Panel editor start.sh */
+.editor-area {
+  flex:1; display: flex; flex-direction: column; overflow: hidden;
+}
+.editor-textarea {
+  flex:1; resize: none; border: none; outline: none;
+  font-family: 'JetBrains Mono', monospace; font-size: .8rem;
+  line-height: 1.65; padding: 1rem 1.25rem;
+  background: var(--bg); color: var(--text);
+  tab-size: 2;
+}
+.editor-footer {
+  padding: .75rem 1.25rem; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: .5rem; align-items: center;
+  background: var(--bg-2); flex-shrink: 0;
+}
+.editor-hint { font-size: .75rem; color: var(--text-2); }
 
-        /* Log Viewer Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
+/* ── Cmd sender ── */
+.cmd-panel { padding: .75rem 1.25rem; border-top: 1px solid var(--border); display: flex; gap: .5rem; flex-shrink: 0; }
+.cmd-input {
+  flex:1; background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .45rem .75rem;
+  font-family: 'JetBrains Mono', monospace; font-size: .82rem; color: var(--text);
+  outline: none; transition: border-color var(--transition);
+}
+.cmd-input:focus { border-color: var(--brand); }
 
-        .log-window {
-            background: var(--bg-surface);
-            width: 90%;
-            max-width: 1000px;
-            height: 85vh;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            transform: translateY(20px);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .modal-overlay.active .log-window { transform: translateY(0); }
+/* ═══════════════════════════════════════════════════════════
+   CLOSE BUTTON
+═══════════════════════════════════════════════════════════ */
+.close-btn {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: var(--bg-3); border: 1px solid var(--border);
+  color: var(--text-2); cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.close-btn:hover { background: var(--danger); color: #fff; border-color: transparent; }
 
-        .log-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255,255,255,0.02);
-        }
-        
-        .log-header h3 {
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .log-header h3 span { color: var(--brand-primary); }
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICACIONES (Toast) — "localhost dice:"
+═══════════════════════════════════════════════════════════ */
+#toast-container {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  z-index: 9999; display: flex; flex-direction: column; gap: .6rem;
+  pointer-events: none;
+}
 
-        .close-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        .close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.toast {
+  pointer-events: all;
+  min-width: 300px; max-width: 380px;
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0;
+  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: toast-in .35s cubic-bezier(.34,1.56,.64,1) forwards;
+  position: relative;
+}
+.toast.removing { animation: toast-out .28s ease forwards; }
 
-        .log-body {
-            flex: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
-            background: #000;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.8rem;
-            color: #d4d4d8;
-            line-height: 1.5;
-        }
-        .log-body::-webkit-scrollbar { width: 8px; }
-        .log-body::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
-        
-        /* Terminal Web Input */
-        .log-input-area {
-            border-top: 1px solid var(--border);
-            background: #000;
-            padding: 0.75rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .log-input-area span {
-            color: var(--success);
-            font-family: 'Fira Code', monospace;
-            font-weight: 600;
-        }
-        
-        .log-input-area input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            outline: none;
-        }
+@keyframes toast-in {
+  from { opacity:0; transform: translateX(100%) scale(.9); }
+  to   { opacity:1; transform: translateX(0) scale(1); }
+}
+@keyframes toast-out {
+  from { opacity:1; transform: translateX(0) scale(1); }
+  to   { opacity:0; transform: translateX(120%) scale(.95); }
+}
 
-        /* Toasts Animados */
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+.toast-header {
+  padding: .65rem 1rem .4rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast-icon { font-size: 1rem; flex-shrink: 0; }
+.toast-sender { font-size: .7rem; font-weight: 700; color: var(--text-2); letter-spacing: .3px; }
+.toast-close {
+  margin-left: auto; background: none; border: none; cursor: pointer;
+  color: var(--text-3); font-size: 14px; padding: 2px 4px;
+  border-radius: 4px; transition: color var(--transition);
+}
+.toast-close:hover { color: var(--text); }
+.toast-body { padding: .2rem 1rem .75rem 2.6rem; font-size: .85rem; font-weight: 500; line-height: 1.5; }
+.toast-progress {
+  height: 3px; width: 100%;
+  animation: toast-progress linear forwards;
+}
+@keyframes toast-progress { from { width:100%; } to { width:0; } }
 
-        .toast {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error   { border-left: 3px solid var(--danger); }
+.toast.warning { border-left: 3px solid var(--warning); }
+.toast.info    { border-left: 3px solid var(--info); }
+.toast.kill    { border-left: 3px solid #7C3AED; }
 
-        .toast.success { border-left: 3px solid var(--success); }
-        .toast.error { border-left: 3px solid var(--danger); }
+.toast.success .toast-progress { background: var(--success); }
+.toast.error   .toast-progress { background: var(--danger); }
+.toast.warning .toast-progress { background: var(--warning); }
+.toast.info    .toast-progress { background: var(--info); }
+.toast.kill    .toast-progress { background: #7C3AED; }
 
-        /* Loading Skeletons */
-        .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
-            background-size: 200% 100%;
-            animation: load 1.5s infinite;
-            border-radius: 16px;
-            height: 250px;
-            border: 1px solid var(--border);
-        }
-        @keyframes load { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* ═══════════════════════════════════════════════════════════
+   SPINNER
+═══════════════════════════════════════════════════════════ */
+.spin {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.2);
+  border-top-color: #fff;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-        @media (max-width: 768px) {
-            .container { padding: 1.5rem 1rem; }
-            .grid { grid-template-columns: 1fr; }
-            .tabs { display: none; /* Simplificado para móviles o cambiar diseño */ }
-        }
-    </style>
+/* ═══════════════════════════════════════════════════════════
+   ESTADO VACÍO
+═══════════════════════════════════════════════════════════ */
+.empty-state {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--text-2);
+}
+.empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: .4rem; color: var(--text); }
+.empty-state p { font-size: .88rem; }
+
+/* ═══════════════════════════════════════════════════════════
+   BARRA INFERIOR — STATS GLOBALES
+═══════════════════════════════════════════════════════════ */
+.global-bar {
+  display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.global-stat {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: .6rem 1rem;
+  display: flex; align-items: center; gap: .5rem;
+  backdrop-filter: blur(12px); flex: 1; min-width: 140px;
+}
+.global-stat .g-icon { font-size: 1.2rem; }
+.global-stat .g-label { font-size: .7rem; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: .6px; }
+.global-stat .g-val { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+/* ═══════════════════════════════════════════════════════════
+   REFRESH INDICATOR
+═══════════════════════════════════════════════════════════ */
+.refresh-bar {
+  height: 2px; background: var(--bg-3);
+  position: fixed; top: 60px; left: 0; right: 0; z-index: 199;
+}
+.refresh-fill {
+  height: 100%; background: var(--brand); width: 0;
+  transition: width linear;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR GLOBAL
+═══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+/* ═══════════════════════════════════════════════════════════
+   TAB PANELS
+═══════════════════════════════════════════════════════════ */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .navbar { padding: 0 1rem; }
+  .nav-tabs { display: none; }
+  .main { padding: 1rem; }
+  .nodes-grid { grid-template-columns: 1fr; }
+  #toast-container { left: 1rem; right: 1rem; bottom: 1rem; }
+  .toast { min-width: unset; max-width: 100%; }
+  .global-bar { gap: .6rem; }
+  .global-stat { min-width: 120px; }
+}
+</style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="brand">
-            <div class="brand-logo">L</div>
-            <div class="brand-text">
-                <h1>LServer Studio</h1>
-                <p>Infrastructure Management</p>
-            </div>
-        </div>
-        
-        <div class="tabs">
-            <button class="tab-btn active" id="tab-nodes" onclick="switchTab('nodes')">Nodos</button>
-            <button class="tab-btn" id="tab-groups" onclick="switchTab('groups')">Grupos</button>
-        </div>
-        
-        <div class="status-pill" id="connStatus">
-            Connected
-        </div>
-    </nav>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo"><span>⚡</span></div>
+    <div>
+      <div>LServer</div>
+    </div>
+  </div>
 
-    <main class="container">
-        <!-- VISTA DE NODOS -->
-        <div id="view-nodes">
-            <div class="page-header">
-                <h2 class="page-title">Instancias Activas</h2>
-                <p class="page-subtitle">Monitoreo en tiempo real de recursos y servicios web / juegos</p>
-            </div>
-            <div class="grid" id="nodesGrid">
-                <div class="skeleton"></div>
-                <div class="skeleton"></div>
-                <div class="skeleton"></div>
-            </div>
-        </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-tab="nodes">🖥️ Nodos</button>
+    <button class="nav-tab" data-tab="groups">👥 Grupos</button>
+  </div>
 
-        <!-- VISTA DE GRUPOS -->
-        <div id="view-groups" style="display: none;">
-            <div class="page-header">
-                <h2 class="page-title">Redes y Clusters</h2>
-                <p class="page-subtitle">Control masivo para múltiples servidores y arquitecturas complejas</p>
-            </div>
-            <div class="grid" id="groupsGrid">
-                <!-- Se llenará vía JS -->
-            </div>
-        </div>
-    </main>
+  <div class="nav-right">
+    <div class="server-status ok" id="server-status-pill">
+      <span class="dot"></span> Panel Activo
+    </div>
+    <button class="theme-btn" id="theme-toggle" title="Cambiar tema">🌙</button>
+  </div>
+</nav>
 
-    <!-- Modal Logs y Terminal Web -->
-    <div class="modal-overlay" id="logModal" onclick="if(event.target === this) closeLog()">
-        <div class="log-window">
-            <div class="log-header">
-                <h3>Terminal <span>/</span> <span id="logNodeName" style="color: #fff; margin-left: 4px;">node</span></h3>
-                <button class="close-btn" onclick="closeLog()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="log-body" id="logContent">
-                Esperando datos...
-            </div>
-            <div class="log-input-area">
-                <span>></span>
-                <input type="text" id="termInput" placeholder="Escribe un comando y presiona Enter..." autocomplete="off">
-            </div>
+<!-- Barra de refresco -->
+<div class="refresh-bar"><div class="refresh-fill" id="refresh-fill"></div></div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<main class="main">
+
+  <!-- Estadísticas globales -->
+  <div class="global-bar" id="global-bar">
+    <div class="global-stat">
+      <span class="g-icon">🖥️</span>
+      <div><div class="g-label">Total Nodos</div><div class="g-val" id="gs-total">—</div></div>
+    </div>
+    <div class="global-stat">
+      <span class="g-icon">🟢</span>
+      <div><div class="g-label">Online</div><div class="g-val" id="gs-online" style="color:var(--success)">—</div></div>
+    </div>
+    <div class="global-stat">
+      <span class="g-icon">🔴</span>
+      <div><div class="g-label">Offline</div><div class="g-val" id="gs-offline" style="color:var(--danger)">—</div></div>
+    </div>
+    <div class="global-stat">
+      <span class="g-icon">🔄</span>
+      <div><div class="g-label">Actualización</div><div class="g-val" id="gs-refresh">5s</div></div>
+    </div>
+  </div>
+
+  <!-- TAB: NODOS -->
+  <div class="tab-panel active" id="tab-nodes">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Mis Nodos <span id="nodes-count-badge"></span></div>
+        <div class="page-sub">Administra todos tus servidores desde aquí</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="App.refresh()">🔄 Actualizar</button>
+      </div>
+    </div>
+    <div class="nodes-grid" id="nodes-grid">
+      <div class="empty-state">
+        <div class="emoji">⏳</div>
+        <h3>Cargando nodos…</h3>
+        <p>Conectando con el servidor.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: GRUPOS -->
+  <div class="tab-panel" id="tab-groups">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Grupos de Nodos</div>
+        <div class="page-sub">Controla múltiples nodos a la vez</div>
+      </div>
+    </div>
+    <div class="groups-grid" id="groups-grid">
+      <div class="empty-state">
+        <div class="emoji">⏳</div>
+        <h3>Cargando grupos…</h3>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL — LOGS + EDITOR -->
+<div class="modal-overlay" id="log-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        🖥️ <span id="modal-node-name" class="accent">—</span>
+        &nbsp;
+        <div class="modal-tabs">
+          <button class="modal-tab active" data-modal-tab="logs">📋 Logs</button>
+          <button class="modal-tab" data-modal-tab="editor">✏️ start.sh</button>
         </div>
+      </div>
+      <div class="modal-actions">
+        <span id="log-status-badge"></span>
+        <button class="btn btn-sm btn-ghost" id="log-refresh-btn" onclick="Modal.refreshLogs()">🔄</button>
+        <button class="btn btn-sm btn-ghost" id="log-autoscroll-btn" onclick="Modal.toggleAutoscroll()">⬇️ Auto</button>
+        <button class="close-btn" onclick="Modal.close()">✕</button>
+      </div>
     </div>
 
-    <div class="toast-container" id="toasts"></div>
+    <div class="modal-body">
+      <!-- LOGS PANEL -->
+      <div id="modal-panel-logs" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+        <div class="log-area" id="log-area">Esperando logs…</div>
+        <div class="cmd-panel">
+          <input class="cmd-input" id="cmd-input" placeholder="Escribe un comando al servidor y pulsa Enter…">
+          <button class="btn btn-primary btn-sm" onclick="Modal.sendCmd()">Enviar ▶</button>
+        </div>
+      </div>
 
-    <script>
-        let logInterval = null;
-        let currentLogNode = null;
-        let currentTab = 'nodes';
-        
-        // Historial de comandos para la flecha arriba
-        const cmdHistory = [];
-        let historyIdx = -1;
+      <!-- EDITOR PANEL -->
+      <div id="modal-panel-editor" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+        <div class="editor-area">
+          <textarea class="editor-textarea" id="editor-textarea" spellcheck="false" placeholder="Cargando start.sh…"></textarea>
+        </div>
+        <div class="editor-footer">
+          <span class="editor-hint" id="editor-hint">Edita el start.sh del nodo. Guarda para aplicar cambios.</span>
+          <button class="btn btn-ghost btn-sm" onclick="Modal.reloadEditor()">↺ Recargar</button>
+          <button class="btn btn-primary btn-sm" onclick="Modal.saveEditor()">💾 Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('view-nodes').style.display = tab === 'nodes' ? 'block' : 'none';
-            document.getElementById('view-groups').style.display = tab === 'groups' ? 'block' : 'none';
-            
-            document.getElementById('tab-nodes').classList.toggle('active', tab === 'nodes');
-            document.getElementById('tab-groups').classList.toggle('active', tab === 'groups');
-            
-            if (tab === 'nodes') fetchNodes();
-            else fetchGroups();
-        }
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
 
-        function showToast(msg, type = 'success') {
-            const container = document.getElementById('toasts');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    ${type === 'success' ? '<path d="M20 6L9 17l-5-5"/>' : '<circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>'}
-                </svg>
-                ${msg}
-            `;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
+<script>
+/* ═══════════════════════════════════════════════════════════
+   SOUND ENGINE — Web Audio API (sin archivos externos)
+═══════════════════════════════════════════════════════════ */
+const Sound = (() => {
+  let ctx = null;
+  const get = () => { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; };
 
-        async function fetchNodes() {
-            if (currentTab !== 'nodes') return;
-            try {
-                const res = await fetch('/api/nodes');
-                const data = await res.json();
-                setConnected(true);
-                renderNodes(data.nodes || []);
-            } catch (e) {
-                setConnected(false);
-            }
-        }
-        
-        async function fetchGroups() {
-            if (currentTab !== 'groups') return;
-            try {
-                const res = await fetch('/api/groups');
-                const data = await res.json();
-                setConnected(true);
-                renderGroups(data.groups || []);
-            } catch (e) {
-                setConnected(false);
-            }
-        }
+  function tone(freq, type, dur, vol = 0.18, ramp = true) {
+    try {
+      const c = get();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.setValueAtTime(freq, c.currentTime);
+      g.gain.setValueAtTime(vol, c.currentTime);
+      if (ramp) g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+      o.start(c.currentTime); o.stop(c.currentTime + dur);
+    } catch(e) {}
+  }
 
-        function setConnected(isConnected) {
-            const status = document.getElementById('connStatus');
-            if(isConnected) {
-                status.innerHTML = 'Connected';
-                status.style.color = 'var(--success)';
-                status.style.borderColor = 'rgba(16,185,129,0.2)';
-                status.style.background = 'var(--success-bg)';
-            } else {
-                status.innerHTML = 'Offline';
-                status.style.color = 'var(--text-muted)';
-                status.style.borderColor = 'var(--border)';
-                status.style.background = 'rgba(255,255,255,0.05)';
-            }
-        }
+  return {
+    success() {
+      tone(523, 'sine', 0.08, 0.15);
+      setTimeout(() => tone(659, 'sine', 0.12, 0.14), 80);
+      setTimeout(() => tone(784, 'sine', 0.18, 0.12), 160);
+    },
+    error() {
+      tone(300, 'sawtooth', 0.1, 0.12);
+      setTimeout(() => tone(220, 'sawtooth', 0.15, 0.1), 90);
+    },
+    warning() {
+      tone(440, 'triangle', 0.08, 0.12);
+      setTimeout(() => tone(440, 'triangle', 0.08, 0.12), 160);
+    },
+    info() {
+      tone(880, 'sine', 0.1, 0.08);
+    },
+    kill() {
+      tone(400, 'square', 0.05, 0.1);
+      setTimeout(() => tone(280, 'square', 0.05, 0.1), 60);
+      setTimeout(() => tone(180, 'sawtooth', 0.2, 0.12), 120);
+    },
+    click() {
+      tone(1200, 'sine', 0.04, 0.05, false);
+    }
+  };
+})();
 
-        function renderNodes(nodes) {
-            const grid = document.getElementById('nodesGrid');
-            if (nodes.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem; border: 1px dashed var(--border); border-radius: 16px;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" stroke-width="1.5" style="margin-bottom:1rem;">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-                        </svg>
-                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Ningún nodo detectado</h3>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">Crea un servidor usando el CLI: lserver -c &lt;nombre&gt;</p>
-                    </div>`;
-                return;
-            }
+/* ═══════════════════════════════════════════════════════════
+   THEME MANAGER
+═══════════════════════════════════════════════════════════ */
+const Theme = (() => {
+  const ICONS = { dark: '🌙', light: '☀️' };
+  let current = localStorage.getItem('lserver-theme') || 'dark';
 
-            grid.innerHTML = nodes.map(n => `
-                <div class="card ${n.status}">
-                    <div class="card-header">
-                        <div class="node-info">
-                            <h2>${n.name}</h2>
-                            <div class="node-tags">
-                                ${n.is_critical ? '<span class="tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Auto-Heal</span>' : ''}
-                                ${n.backup_enabled ? '<span class="tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Backup</span>' : ''}
-                            </div>
-                        </div>
-                        <div class="state-badge ${n.status === 'online' ? 'state-online' : 'state-offline'}">
-                            ${n.status}
-                        </div>
-                    </div>
+  function apply(t) {
+    current = t;
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('theme-toggle').textContent = ICONS[t === 'dark' ? 'light' : 'dark'];
+    localStorage.setItem('lserver-theme', t);
+  }
 
-                    <div class="metrics-grid">
-                        <div class="metric">
-                            <span class="metric-label">Uso de CPU</span>
-                            <span class="metric-val ${n.cpu !== '—' ? 'highlight' : ''}">${n.cpu}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Memoria RAM</span>
-                            <span class="metric-val highlight">${n.ram}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Puerto Activo</span>
-                            <span class="metric-val">${n.ports}</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">Tiempo Uptime</span>
-                            <span class="metric-val">${n.uptime}</span>
-                        </div>
-                    </div>
+  return {
+    init()   { apply(current); },
+    toggle() { Sound.click(); apply(current === 'dark' ? 'light' : 'dark'); },
+    get()    { return current; }
+  };
+})();
 
-                    <div class="actions">
-                        ${n.status === 'offline' 
-                            ? `<button class="btn btn-primary" onclick="actionNode('start', '${n.name}')">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg> Arrancar
-                               </button>`
-                            : `<button class="btn btn-secondary" onclick="actionNode('stop', '${n.name}')">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg> Detener
-                               </button>`
-                        }
-                        <button class="btn btn-secondary" onclick="openLog('${n.name}')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h13.4a.5.5 0 0 1 .49.61l-1.5 8.39A2 2 0 0 1 16.43 14H6"/><path d="M4 19v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></svg> Terminal
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
+/* ═══════════════════════════════════════════════════════════
+   TOAST — "localhost dice:"
+═══════════════════════════════════════════════════════════ */
+const Toast = (() => {
+  const TYPE_ICONS = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️', kill:'💀' };
+  const TYPE_DUR   = { success:4000, error:5500, warning:5000, info:3500, kill:5000 };
 
-        function renderGroups(groups) {
-            const grid = document.getElementById('groupsGrid');
-            if (groups.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem; border: 1px dashed var(--border); border-radius: 16px;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" stroke-width="1.5" style="margin-bottom:1rem;">
-                            <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
-                        </svg>
-                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No tienes redes configuradas</h3>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">Agrupa servidores con: lserver -g &lt;nombre&gt; -c</p>
-                    </div>`;
-                return;
-            }
+  function show(type, message, duration) {
+    Sound[type] ? Sound[type]() : Sound.info();
+    const dur = duration || TYPE_DUR[type] || 4000;
+    const container = document.getElementById('toast-container');
 
-            grid.innerHTML = groups.map(g => {
-                const allOnline = g.active === g.total && g.total > 0;
-                return `
-                <div class="card ${allOnline ? 'online' : 'offline'}">
-                    <div class="card-header">
-                        <div class="node-info">
-                            <h2>${g.name}</h2>
-                            <p style="color: var(--text-muted); font-size: 0.8rem;">${g.total} Nodos en este cluster</p>
-                        </div>
-                        <div class="state-badge ${g.active > 0 ? 'state-online' : 'state-offline'}">
-                            ${g.active} / ${g.total} ONLINE
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
-                            Nodos: <span style="color:#fff">${g.nodes.join(', ')}</span>
-                        </p>
-                    </div>
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `
+      <div class="toast-header">
+        <span class="toast-icon">${TYPE_ICONS[type] || '📢'}</span>
+        <span class="toast-sender">🖥️ localhost dice:</span>
+        <button class="toast-close" onclick="this.closest('.toast').remove()">✕</button>
+      </div>
+      <div class="toast-body">${message}</div>
+      <div class="toast-progress" style="animation-duration:${dur}ms"></div>
+    `;
+    container.appendChild(t);
 
-                    <div class="actions">
-                        <button class="btn btn-primary" onclick="actionGroup('start', '${g.name}')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg> Arrancar Todos
-                        </button>
-                        <button class="btn btn-danger" onclick="if(confirm('¿Detener el cluster ${g.name}?')) actionGroup('stop', '${g.name}')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg> Apagar Todos
-                        </button>
-                    </div>
-                </div>
-            `}).join('');
-        }
+    setTimeout(() => {
+      t.classList.add('removing');
+      setTimeout(() => t.remove(), 300);
+    }, dur);
+  }
 
-        async function actionNode(type, name) {
-            try {
-                const res = await fetch(`/api/${type}/${name}`, { method: 'POST' });
-                const data = await res.json();
-                if (data.error) showToast(data.error, 'error');
-                else {
-                    showToast(data.message, 'success');
-                    fetchNodes();
-                }
-            } catch (e) {
-                showToast('Error de conexión', 'error');
-            }
-        }
-        
-        async function actionGroup(type, name) {
-            try {
-                showToast(`Enviando señal de ${type} al grupo...`, 'success');
-                const res = await fetch(`/api/group/${type}/${name}`, { method: 'POST' });
-                const data = await res.json();
-                if (data.error) showToast(data.error, 'error');
-                else {
-                    showToast(data.message, 'success');
-                    fetchGroups();
-                }
-            } catch (e) {
-                showToast('Error de conexión', 'error');
-            }
-        }
+  return {
+    success: (m, d) => show('success', m, d),
+    error:   (m, d) => show('error', m, d),
+    warning: (m, d) => show('warning', m, d),
+    info:    (m, d) => show('info', m, d),
+    kill:    (m, d) => show('kill', m, d),
+  };
+})();
 
-        async function openLog(name) {
-            currentLogNode = name;
-            const modal = document.getElementById('logModal');
-            document.getElementById('logNodeName').textContent = name;
-            document.getElementById('termInput').value = '';
-            modal.classList.add('active');
-            await updateLog();
-            logInterval = setInterval(updateLog, 2000);
-            
-            // Foco en el input
-            setTimeout(() => document.getElementById('termInput').focus(), 100);
-        }
+/* ═══════════════════════════════════════════════════════════
+   API CALLS
+═══════════════════════════════════════════════════════════ */
+const API = {
+  async get(path) {
+    const r = await fetch(path);
+    return r.json();
+  },
+  async post(path, body = null) {
+    const opts = { method: 'POST' };
+    if (body) { opts.body = JSON.stringify(body); opts.headers = {'Content-Type':'application/json'}; }
+    const r = await fetch(path, opts);
+    return r.json();
+  },
+  nodes:      () => API.get('/api/nodes'),
+  groups:     () => API.get('/api/groups'),
+  logs:       n  => API.get(`/api/logs/${n}`),
+  startsh:    n  => API.get(`/api/startsh/${n}`),
+  start:      n  => API.post(`/api/start/${n}`),
+  stop:       n  => API.post(`/api/stop/${n}`),
+  kill:       n  => API.post(`/api/kill/${n}`),
+  restart:    n  => API.post(`/api/restart/${n}`),
+  saveStartsh:(n,c) => API.post(`/api/startsh/${n}`, {content: c}),
+  sendCmd:    (n,cmd) => API.post(`/api/command/${n}`, {command: cmd}),
+  groupStart: g  => API.post(`/api/group/start/${g}`),
+  groupStop:  g  => API.post(`/api/group/stop/${g}`),
+};
 
-        function closeLog() {
-            document.getElementById('logModal').classList.remove('active');
-            currentLogNode = null;
-            clearInterval(logInterval);
-        }
+/* ═══════════════════════════════════════════════════════════
+   LOG COLORIZER
+═══════════════════════════════════════════════════════════ */
+function colorizeLogs(raw) {
+  if (!raw) return '<span class="l-dim">Sin logs disponibles.</span>';
+  return raw
+    .split('\n')
+    .map(line => {
+      const esc = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      if (/\[ERROR\]|SEVERE|Exception|Error|FATAL/i.test(line)) return `<span class="l-error">${esc}</span>`;
+      if (/\[WARN\]|WARNING/i.test(line)) return `<span class="l-warn">${esc}</span>`;
+      if (/\[INFO\]/i.test(line)) return `<span class="l-info">${esc}</span>`;
+      if (/Done|Started|Enabling|Loaded|Success/i.test(line)) return `<span class="l-ok">${esc}</span>`;
+      if (line.startsWith('#') || line.trim() === '') return `<span class="l-dim">${esc}</span>`;
+      return esc;
+    })
+    .join('\n');
+}
 
-        let isUserScrolling = false;
-        document.getElementById('logContent').addEventListener('scroll', function() {
-            const el = this;
-            if (el.scrollHeight - el.scrollTop - el.clientHeight > 10) {
-                isUserScrolling = true;
-            } else {
-                isUserScrolling = false;
-            }
-        });
+/* ═══════════════════════════════════════════════════════════
+   MODAL CONTROLLER
+═══════════════════════════════════════════════════════════ */
+const Modal = (() => {
+  let node = null, logInterval = null, autoscroll = true;
 
-        async function updateLog() {
-            if (!currentLogNode) return;
-            try {
-                const res = await fetch(`/api/logs/${currentLogNode}`);
-                const data = await res.json();
-                const content = document.getElementById('logContent');
-                content.textContent = data.logs || data.error || 'Sin registros.';
-                
-                // Auto scroll solo si el usuario no hizo scroll arriba
-                if (!isUserScrolling) {
-                    content.scrollTop = content.scrollHeight;
-                }
-            } catch (e) {}
-        }
-        
-        // --- Web Terminal Logic ---
-        document.getElementById('termInput').addEventListener('keydown', async function(e) {
-            if (e.key === 'Enter') {
-                const cmd = this.value.trim();
-                if (!cmd || !currentLogNode) return;
-                
-                // Guardar historial
-                if(cmdHistory[cmdHistory.length-1] !== cmd) {
-                    cmdHistory.push(cmd);
-                }
-                historyIdx = cmdHistory.length;
-                this.value = ''; // Limpiar
-                
-                try {
-                    const res = await fetch(`/api/command/${currentLogNode}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ command: cmd })
-                    });
-                    const data = await res.json();
-                    if(data.error) showToast(data.error, 'error');
-                    else setTimeout(updateLog, 500); // Forzar actualización rápida
-                } catch(err) {
-                    showToast('Error enviando comando', 'error');
-                }
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (historyIdx > 0) {
-                    historyIdx--;
-                    this.value = cmdHistory[historyIdx];
-                }
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (historyIdx < cmdHistory.length - 1) {
-                    historyIdx++;
-                    this.value = cmdHistory[historyIdx];
-                } else {
-                    historyIdx = cmdHistory.length;
-                    this.value = '';
-                }
-            }
-        });
+  function open(nodeName) {
+    node = nodeName;
+    document.getElementById('modal-node-name').textContent = nodeName;
+    document.getElementById('log-modal').classList.add('open');
+    switchTab('logs');
+    document.getElementById('cmd-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') Modal.sendCmd();
+    });
+    refreshLogs();
+    logInterval = setInterval(refreshLogs, 2500);
+  }
 
-        // Polling unificado
-        setInterval(() => {
-            if (currentTab === 'nodes') fetchNodes();
-            else fetchGroups();
-        }, 3000);
-        
-        // Initial load
-        switchTab('nodes');
-    </script>
+  function close() {
+    document.getElementById('log-modal').classList.remove('open');
+    clearInterval(logInterval);
+    node = null;
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.modal-tab').forEach(b => b.classList.toggle('active', b.dataset.modalTab === tab));
+    document.getElementById('modal-panel-logs').style.display   = tab === 'logs'   ? 'flex' : 'none';
+    document.getElementById('modal-panel-editor').style.display = tab === 'editor' ? 'flex' : 'none';
+    if (tab === 'editor') loadEditor();
+  }
+
+  async function refreshLogs() {
+    if (!node) return;
+    try {
+      const data = await API.logs(node);
+      const area = document.getElementById('log-area');
+      area.innerHTML = colorizeLogs(data.logs || data.error || '');
+      if (autoscroll) area.scrollTop = area.scrollHeight;
+    } catch(e) {}
+  }
+
+  async function loadEditor() {
+    if (!node) return;
+    document.getElementById('editor-textarea').value = 'Cargando…';
+    try {
+      const data = await API.startsh(node);
+      document.getElementById('editor-textarea').value = data.content || '';
+      document.getElementById('editor-hint').textContent = `start.sh de "${node}" — edita y guarda.`;
+    } catch(e) {
+      document.getElementById('editor-textarea').value = '# Error al cargar el archivo';
+    }
+  }
+
+  async function saveEditor() {
+    const content = document.getElementById('editor-textarea').value;
+    try {
+      const r = await API.saveStartsh(node, content);
+      if (r.status === 'ok') Toast.success(`start.sh de <b>${node}</b> guardado. 💾`);
+      else Toast.error(r.error || 'No se pudo guardar.');
+    } catch(e) { Toast.error('Error de conexión.'); }
+  }
+
+  async function sendCmd() {
+    const input = document.getElementById('cmd-input');
+    const cmd = input.value.trim();
+    if (!cmd || !node) return;
+    input.value = '';
+    try {
+      const r = await API.sendCmd(node, cmd);
+      if (r.status === 'ok') { Sound.click(); }
+      else Toast.warning(`Comando enviado pero: ${r.error || '?'}`);
+    } catch(e) { Toast.error('Error al enviar comando.'); }
+  }
+
+  return {
+    open, close, sendCmd, saveEditor,
+    refreshLogs,
+    reloadEditor: loadEditor,
+    toggleAutoscroll() {
+      autoscroll = !autoscroll;
+      const btn = document.getElementById('log-autoscroll-btn');
+      btn.textContent = autoscroll ? '⬇️ Auto' : '⏸ Auto';
+      btn.className = autoscroll ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-ghost';
+    }
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   NODE CARD RENDERER
+═══════════════════════════════════════════════════════════ */
+function cpuColor(pct) {
+  const v = parseFloat(pct);
+  if (isNaN(v)) return 'low';
+  if (v > 80) return 'high';
+  if (v > 50) return 'mid';
+  return 'low';
+}
+function ramColor(ram) {
+  // ram es string como "512 MB" o "1.2 GB"
+  return 'low'; // simplificado; el color real viene del % en el payload
+}
+
+function renderCpuBar(cpu) {
+  if (!cpu || cpu === '—') return '';
+  const pct = parseFloat(cpu);
+  if (isNaN(pct)) return '';
+  const cls = pct > 80 ? 'high' : pct > 50 ? 'mid' : 'low';
+  return `
+    <div class="metric-row">
+      <div class="metric-label-row">
+        <span class="metric-name">CPU</span>
+        <span class="metric-val">${cpu}%</span>
+      </div>
+      <div class="metric-bar"><div class="metric-fill ${cls}" style="width:${Math.min(pct,100)}%"></div></div>
+    </div>`;
+}
+
+function renderRamBar(ram) {
+  if (!ram || ram === '—') return '';
+  return `
+    <div class="metric-row">
+      <div class="metric-label-row">
+        <span class="metric-name">RAM</span>
+        <span class="metric-val">${ram}</span>
+      </div>
+      <div class="metric-bar"><div class="metric-fill low" style="width:45%"></div></div>
+    </div>`;
+}
+
+function renderCard(n) {
+  const online = n.status === 'online';
+  const tags = [];
+  if (n.is_critical)     tags.push('❤️ Auto-Heal');
+  if (n.backup_enabled)  tags.push('💾 Backup');
+  if (n.restart_time)    tags.push(`⏰ ${n.restart_time}`);
+
+  const metrics = (online && (n.cpu !== '—' || n.ram !== '—'))
+    ? `<div class="metrics">${renderCpuBar(n.cpu)}${renderRamBar(n.ram)}</div>`
+    : '';
+
+  const path_short = n.path ? n.path.replace(/^\/root\//, '~/') : '—';
+
+  return `
+  <div class="node-card ${n.status}" data-node="${n.name}">
+    <div class="card-top">
+      <div>
+        <div class="node-name">
+          ${online ? '🟢' : '⚫'} ${n.name}
+        </div>
+        ${tags.length ? `<div class="node-tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+      </div>
+      <span class="status-badge ${n.status}">${online ? 'Online' : 'Offline'}</span>
+    </div>
+
+    ${metrics}
+
+    <div class="mini-stats">
+      <div class="mini-stat">
+        <span class="mini-stat-label">Uptime</span>
+        <span class="mini-stat-val">${n.uptime || '—'}</span>
+      </div>
+      <div class="mini-stat">
+        <span class="mini-stat-label">Puerto</span>
+        <span class="mini-stat-val">${n.ports || '—'}</span>
+      </div>
+      <div class="mini-stat" style="grid-column:1/-1">
+        <span class="mini-stat-label">Ruta</span>
+        <span class="mini-stat-val" style="font-size:.72rem;color:var(--text-2)">${path_short}</span>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      ${online
+        ? `<button class="btn btn-danger btn-sm" onclick="NodeActions.stop('${n.name}',this)">⏹ Detener</button>
+           <button class="btn btn-warn btn-sm"   onclick="NodeActions.restart('${n.name}',this)">🔄 Restart</button>
+           <button class="btn btn-ghost btn-sm btn-icon" title="Matar (forzar)" onclick="NodeActions.kill('${n.name}',this)">💀</button>`
+        : `<button class="btn btn-success btn-sm" onclick="NodeActions.start('${n.name}',this)">▶ Encender</button>`
+      }
+      <button class="btn btn-ghost btn-sm" onclick="Modal.open('${n.name}')">📋 Logs</button>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NODE ACTIONS
+═══════════════════════════════════════════════════════════ */
+const NodeActions = (() => {
+  async function withLoading(btn, fn) {
+    if (!btn) return fn();
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spin"></span>`;
+    try { await fn(); } finally {
+      setTimeout(() => { btn.disabled = false; btn.innerHTML = orig; }, 800);
+    }
+  }
+
+  return {
+    async start(name, btn) {
+      await withLoading(btn, async () => {
+        const r = await API.start(name);
+        if (r.status === 'ok') { Toast.success(`<b>${name}</b> encendido ✅`); App.refresh(); }
+        else Toast.error(r.error || `No se pudo encender <b>${name}</b>`);
+      });
+    },
+    async stop(name, btn) {
+      await withLoading(btn, async () => {
+        const r = await API.stop(name);
+        if (r.status === 'ok') { Toast.warning(`<b>${name}</b> detenido ⏹`); App.refresh(); }
+        else Toast.error(r.error || `No se pudo detener <b>${name}</b>`);
+      });
+    },
+    async kill(name, btn) {
+      if (!confirm(`¿Matar (forzar cierre) de "${name}"?\nEsto puede causar pérdida de datos.`)) return;
+      Sound.kill();
+      await withLoading(btn, async () => {
+        const r = await API.kill(name);
+        if (r.status === 'ok') { Toast.kill(`<b>${name}</b> eliminado por la fuerza 💀`); App.refresh(); }
+        else Toast.error(r.error || `No se pudo matar <b>${name}</b>`);
+      });
+    },
+    async restart(name, btn) {
+      await withLoading(btn, async () => {
+        Toast.info(`Reiniciando <b>${name}</b>…`);
+        // Stop → espera → Start
+        await API.stop(name).catch(()=>{});
+        await new Promise(r => setTimeout(r, 1500));
+        const r = await API.start(name);
+        if (r.status === 'ok') { Toast.success(`<b>${name}</b> reiniciado 🔄`); App.refresh(); }
+        else Toast.error(r.error || `Error al reiniciar <b>${name}</b>`);
+      });
+    }
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   GRUPOS RENDERER
+═══════════════════════════════════════════════════════════ */
+function renderGroup(g) {
+  const pills = (g.nodes || []).map(n => {
+    const online = false; // se podría expandir
+    return `<div class="group-node-pill"><span class="dot ${online?'on':'off'}"></span>${n}</div>`;
+  }).join('');
+
+  return `
+  <div class="group-card">
+    <div class="group-header">
+      <div class="group-name">👥 ${g.name}
+        <span class="tag">${g.active || 0}/${g.total || 0} online</span>
+      </div>
+      <div class="group-actions">
+        <button class="btn btn-success btn-sm" onclick="GroupActions.start('${g.name}',this)">▶ Encender todo</button>
+        <button class="btn btn-danger btn-sm"  onclick="GroupActions.stop('${g.name}',this)">⏹ Apagar todo</button>
+      </div>
+    </div>
+    <div class="group-nodes">${pills || '<span style="color:var(--text-3);font-size:.82rem">Sin nodos asignados</span>'}</div>
+  </div>`;
+}
+
+const GroupActions = {
+  async start(name, btn) {
+    btn.disabled = true;
+    const r = await API.groupStart(name).catch(()=>({error:'Error de conexión'}));
+    btn.disabled = false;
+    if (r.status === 'ok') { Toast.success(`Grupo <b>${name}</b> encendido ✅`); App.refresh(); }
+    else Toast.error(r.error || `Error en grupo <b>${name}</b>`);
+  },
+  async stop(name, btn) {
+    btn.disabled = true;
+    const r = await API.groupStop(name).catch(()=>({error:'Error de conexión'}));
+    btn.disabled = false;
+    if (r.status === 'ok') { Toast.warning(`Grupo <b>${name}</b> apagado ⏹`); App.refresh(); }
+    else Toast.error(r.error || `Error en grupo <b>${name}</b>`);
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   APP — COORDINADOR PRINCIPAL
+═══════════════════════════════════════════════════════════ */
+const App = (() => {
+  const REFRESH_INTERVAL = 5000;
+  let timer = null, prevOnlineCount = null;
+
+  function animateRefreshBar(duration) {
+    const fill = document.getElementById('refresh-fill');
+    fill.style.transition = 'none'; fill.style.width = '0';
+    requestAnimationFrame(() => {
+      fill.style.transition = `width ${duration}ms linear`;
+      fill.style.width = '100%';
+    });
+  }
+
+  async function loadNodes() {
+    try {
+      const data = await API.nodes();
+      const nodes = data.nodes || [];
+      const online  = nodes.filter(n => n.status === 'online').length;
+      const offline = nodes.length - online;
+
+      // Update global stats
+      document.getElementById('gs-total').textContent  = nodes.length;
+      document.getElementById('gs-online').textContent  = online;
+      document.getElementById('gs-offline').textContent = offline;
+      document.getElementById('nodes-count-badge').textContent = nodes.length ? `(${nodes.length})` : '';
+
+      // Notificación si cambia el estado
+      if (prevOnlineCount !== null && prevOnlineCount !== online) {
+        const diff = online - prevOnlineCount;
+        if (diff > 0) Toast.success(`${diff} nodo(s) ahora ONLINE 🟢`);
+        else          Toast.warning(`${Math.abs(diff)} nodo(s) cayeron a OFFLINE 🔴`);
+      }
+      prevOnlineCount = online;
+
+      const grid = document.getElementById('nodes-grid');
+      if (!nodes.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+          <div class="emoji">📭</div>
+          <h3>No hay nodos</h3>
+          <p>Crea uno con <code>lserver -c &lt;nombre&gt;</code></p>
+        </div>`;
+      } else {
+        // Actualiza solo si hay cambios (evita parpadeo)
+        const newHtml = nodes.map(renderCard).join('');
+        if (grid.innerHTML !== newHtml) grid.innerHTML = newHtml;
+      }
+    } catch(e) {
+      document.getElementById('gs-total').textContent = 'Error';
+    }
+  }
+
+  async function loadGroups() {
+    try {
+      const data = await API.groups();
+      const groups = data.groups || [];
+      const grid = document.getElementById('groups-grid');
+      if (!groups.length) {
+        grid.innerHTML = `<div class="empty-state">
+          <div class="emoji">👥</div>
+          <h3>No hay grupos</h3>
+          <p>Crea uno con <code>lserver group create &lt;nombre&gt;</code></p>
+        </div>`;
+      } else {
+        grid.innerHTML = groups.map(renderGroup).join('');
+      }
+    } catch(e) {}
+  }
+
+  async function refresh() {
+    animateRefreshBar(REFRESH_INTERVAL);
+    await Promise.all([loadNodes(), loadGroups()]);
+  }
+
+  function startAutoRefresh() {
+    refresh();
+    timer = setInterval(refresh, REFRESH_INTERVAL);
+  }
+
+  return { refresh, startAutoRefresh };
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   TAB NAVIGATION
+═══════════════════════════════════════════════════════════ */
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    Sound.click();
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+  });
+});
+
+/* Modal tabs */
+document.querySelectorAll('.modal-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    Sound.click();
+    Modal['open'] && Modal; // noop
+    const tab = btn.dataset.modalTab;
+    document.querySelectorAll('.modal-tab').forEach(b => b.classList.toggle('active', b.dataset.modalTab === tab));
+    document.getElementById('modal-panel-logs').style.display   = tab === 'logs'   ? 'flex' : 'none';
+    document.getElementById('modal-panel-editor').style.display = tab === 'editor' ? 'flex' : 'none';
+    if (tab === 'editor') Modal.reloadEditor();
+  });
+});
+
+/* Cerrar modal clicando overlay */
+document.getElementById('log-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) Modal.close();
+});
+
+/* ESC para cerrar modal */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') Modal.close();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+document.getElementById('theme-toggle').addEventListener('click', Theme.toggle.bind(Theme));
+Theme.init();
+App.startAutoRefresh();
+
+// Notificación de bienvenida
+setTimeout(() => Toast.info('Panel activo — actualizando cada 5s 🔄'), 800);
+</script>
 </body>
 </html>

@@ -150,3 +150,49 @@ def api_group_stop(group_name):
         return {'status': 'ok', 'message': f"Grupo '{group_name}' detenido."}
     except Exception as e:
         return {'error': str(e)}
+
+def api_get_startsh(node_name):
+    """Retorna el contenido del start.sh de un nodo."""
+    try:
+        from lserver.state import get_node
+        node = get_node(node_name)
+        if not node:
+            return {'error': f"Nodo '{node_name}' no existe."}
+        path = os.path.join(node['path'], 'start.sh')
+        if not os.path.exists(path):
+            return {'error': 'start.sh no encontrado.'}
+        with open(path, 'r', errors='replace') as f:
+            content = f.read()
+        return {'content': content}
+    except Exception as e:
+        return {'error': str(e)}
+
+def api_save_startsh(node_name, content):
+    """Guarda el contenido del start.sh de un nodo."""
+    try:
+        from lserver.state import get_node
+        node = get_node(node_name)
+        if not node:
+            return {'error': f"Nodo '{node_name}' no existe."}
+        path = os.path.join(node['path'], 'start.sh')
+        with open(path, 'w') as f:
+            f.write(content)
+        os.chmod(path, 0o755)
+        return {'status': 'ok'}
+    except Exception as e:
+        return {'error': str(e)}
+
+def api_restart(node_name):
+    """Detiene y vuelve a arrancar un nodo."""
+    try:
+        from lserver.core import stop_node, start_node, is_running
+        import time
+        if is_running(node_name):
+            stop_node(node_name)
+            time.sleep(1.5)
+        start_node(node_name)
+        return {'status': 'ok', 'message': f"Nodo '{node_name}' reiniciado."}
+    except SystemExit:
+        return {'error': f"No se pudo reiniciar '{node_name}'."}
+    except Exception as e:
+        return {'error': str(e)}
