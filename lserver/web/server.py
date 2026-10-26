@@ -87,6 +87,8 @@ class LServerHandler(BaseHTTPRequestHandler):
             self._send_json(api.api_groups())
         elif path == '/api/templates':
             self._send_json(api.api_templates())
+        elif path == '/api/users':
+            self._send_json(api.api_users())
         elif path.startswith('/api/logs/'):
             node_name = path.split('/api/logs/', 1)[1]
             self._send_json(api.api_logs(node_name))
@@ -165,6 +167,11 @@ class LServerHandler(BaseHTTPRequestHandler):
         elif path.startswith('/api/files/upload/'):
             node_name = path.split('/api/files/upload/', 1)[1]
             self._send_json(api.api_upload_file(node_name, body_data.get('path', ''), body_data.get('filename', ''), body_data.get('content_b64', '')))
+        elif path == '/api/users/add':
+            self._send_json(api.api_add_user(body_data.get('username', ''), body_data.get('password', '')))
+        elif path.startswith('/api/users/delete/'):
+            uname = path.split('/api/users/delete/', 1)[1]
+            self._send_json(api.api_delete_user(uname))
         elif path.startswith('/api/group/start/'):
             gname = path.split('/api/group/start/', 1)[1]
             self._send_json(api.api_group_start(gname))
@@ -184,14 +191,41 @@ class LServerHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type')
         self.end_headers()
 
+def get_public_ip():
+    """Detecta la IP pública real del servidor con timeout de 2 segundos."""
+    import urllib.request
+    services = [
+        'https://api.ipify.org',
+        'https://ifconfig.me/ip',
+        'https://icanhazip.com'
+    ]
+    for url in services:
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'curl/7.68.0'})
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                ip = resp.read().decode('utf-8').strip()
+                if ip and len(ip.split('.')) == 4:
+                    return ip
+        except Exception:
+            continue
+    try:
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
+    except Exception:
+        return "127.0.0.1"
+
 def start_web_server(port=9090):
-    """Inicia el servidor web en segundo plano."""
+    """Inicia el servidor web en segundo plano y muestra enlaces directos de acceso."""
     if os.path.exists(WEB_PID_FILE):
         with open(WEB_PID_FILE, 'r') as f:
             try:
                 pid = int(f.read().strip())
                 os.kill(pid, 0)
-                log_info(f"El panel web ya esta corriendo (PID: {pid}).")
+                log_info(f"El panel web ya está corriendo (PID: {pid}).")
                 return
             except (ValueError, OSError):
                 pass
@@ -209,9 +243,36 @@ def start_web_server(port=9090):
     with open(WEB_PID_FILE, "w") as f:
         f.write(str(process.pid))
     
-    log_success(f"Panel web iniciado en http://0.0.0.0:{port}")
-    if not has_credentials():
-        log_info("Configura una contrasena con: lserver web password")
+    public_ip = get_public_ip()
+    from lserver.ui import LIGHT_ORANGE, GOLD, GREEN, WHITE, GRAY, RED, YELLOW, RESET, BOLD, _clean
+    from lserver.web.auth import list_users
+    
+    users = list_users()
+    user_count = len(users)
+    width = 64
+    c = LIGHT_ORANGE
+    
+    def box_line(content):
+        pad = width - len(_clean(content)) - 1
+        print(f"{c}║{RESET}{content}{' ' * max(0, pad)}{c}║{RESET}")
+    
+    print(f"\n{c}╔{'═' * width}╗{RESET}")
+    box_line(f"  {GOLD}{BOLD}⚡ LSERVER — PANEL DE CONTROL WEB INICIADO{RESET}")
+    print(f"{c}╠{'═' * width}╣{RESET}")
+    box_line(f"  {WHITE}🌐 Acceso Público:{RESET}   {GOLD}http://{public_ip}:{port}{RESET}")
+    box_line(f"  {WHITE}🏠 Acceso Local:{RESET}     {GRAY}http://localhost:{port}{RESET}")
+    print(f"{c}╠{'═' * width}╣{RESET}")
+    if user_count > 0:
+        names = ', '.join([u['username'] for u in users[:3]])
+        if user_count > 3: names += f" y {user_count - 3} más"
+        box_line(f"  {GREEN}🔒 Acceso Seguro:{RESET}   {WHITE}{user_count} cuenta(s) activa(s){RESET} {GRAY}({names}){RESET}")
+    else:
+        box_line(f"  {RED}⚠️  Acceso Abierto:{RESET}  {YELLOW}Sin contraseña configurada{RESET}")
+        box_line(f"  {GRAY}   Crea una cuenta con:{RESET} {GOLD}lserver web user add <nombre>{RESET}")
+    print(f"{c}╠{'═' * width}╣{RESET}")
+    box_line(f"  {GRAY}💡 Si no abre en tu navegador, habilita el puerto:{RESET}")
+    box_line(f"  {GOLD}   sudo ufw allow {port}/tcp{RESET}")
+    print(f"{c}╚{'═' * width}╝{RESET}\n")
 
 def stop_web_server():
     """Detiene el servidor web."""

@@ -122,10 +122,10 @@ def main():
         print(f"{LIGHT_ORANGE}╚══════════════════════════════════════════════════════╝{RESET}\n")
         sys.exit(1)
     
-    # lserver web start|stop|password
+    # lserver web start|stop|password|user
     if cmd == "web":
         from lserver.web.server import start_web_server, stop_web_server, run_web_server
-        from lserver.web.auth import set_password, has_credentials
+        from lserver.web.auth import set_password, add_user, delete_user, list_users, has_credentials
         if len(sys.argv) > 2:
             sub = sys.argv[2]
             if sub == "start":
@@ -137,15 +137,57 @@ def main():
                 sys.exit(0)
             elif sub == "password":
                 import getpass
-                user = input("Usuario: ")
-                pw = getpass.getpass("Contrasena: ")
-                pw2 = getpass.getpass("Confirmar contrasena: ")
+                user = input("Usuario: ").strip()
+                pw = getpass.getpass("Contraseña: ")
+                pw2 = getpass.getpass("Confirmar contraseña: ")
                 if pw != pw2:
-                    error_exit("Las contrasenas no coinciden.")
-                set_password(user, pw)
-                log_success(f"Credenciales configuradas para '{user}'.")
+                    error_exit("Las contraseñas no coinciden.")
+                try:
+                    add_user(user, pw)
+                    log_success(f"Credenciales guardadas para '{user}'.")
+                except Exception as e:
+                    error_exit(str(e))
                 sys.exit(0)
-        print("Uso: lserver web start [puerto] | stop | password")
+            elif sub == "user":
+                action = sys.argv[3] if len(sys.argv) > 3 else "list"
+                if action == "list":
+                    users = list_users()
+                    if not users:
+                        log_info("No hay usuarios creados para el panel web.")
+                        log_info("Crea uno con: lserver web user add <nombre>")
+                    else:
+                        from lserver.ui import GOLD, ORANGE, WHITE, GRAY, RESET
+                        print(f"\n{GOLD}👤 Usuarios del Panel Web:{RESET}")
+                        for u in users:
+                            import datetime
+                            date_str = datetime.datetime.fromtimestamp(u['created_at']).strftime('%Y-%m-%d %H:%M') if u.get('created_at') else '—'
+                            print(f"  {ORANGE}●{RESET} {WHITE}{u['username']}{RESET}  {GRAY}(creado: {date_str}){RESET}")
+                        print()
+                    sys.exit(0)
+                elif action == "add":
+                    import getpass
+                    uname = sys.argv[4] if len(sys.argv) > 4 else input("Nombre de usuario: ").strip()
+                    pw = getpass.getpass("Contraseña: ")
+                    pw2 = getpass.getpass("Confirmar contraseña: ")
+                    if pw != pw2:
+                        error_exit("Las contraseñas no coinciden.")
+                    try:
+                        add_user(uname, pw)
+                        log_success(f"Usuario '{uname}' añadido exitosamente.")
+                    except Exception as e:
+                        error_exit(str(e))
+                    sys.exit(0)
+                elif action == "delete" and len(sys.argv) > 4:
+                    uname = sys.argv[4]
+                    try:
+                        delete_user(uname)
+                        log_success(f"Usuario '{uname}' eliminado.")
+                    except Exception as e:
+                        error_exit(str(e))
+                    sys.exit(0)
+                print("Uso: lserver web user add <usuario> | list | delete <usuario>")
+                sys.exit(1)
+        print("Uso: lserver web start [puerto] | stop | password | user [add|list|delete]")
         sys.exit(1)
     
     # lserver --run-web (uso interno)

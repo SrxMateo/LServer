@@ -389,3 +389,29 @@ def api_upload_file(node_name, subpath, filename, content_b64):
         return {'status': 'ok', 'filename': safe_fname}
     except Exception as e:
         return {'error': str(e)}
+
+def api_users():
+    """Retorna la lista de usuarios del panel web."""
+    try:
+        from lserver.web.auth import list_users
+        return {'users': list_users()}
+    except Exception as e:
+        return {'error': str(e)}
+
+def api_add_user(username, password):
+    """Crea o actualiza una cuenta de usuario."""
+    try:
+        from lserver.web.auth import add_user
+        add_user(username, password)
+        return {'status': 'ok', 'message': f"Usuario '{username}' guardado exitosamente."}
+    except Exception as e:
+        return {'error': str(e)}
+
+def api_delete_user(username):
+    """Elimina una cuenta de usuario."""
+    try:
+        from lserver.web.auth import delete_user
+        delete_user(username)
+        return {'status': 'ok', 'message': f"Usuario '{username}' eliminado."}
+    except Exception as e:
+        return {'error': str(e)}

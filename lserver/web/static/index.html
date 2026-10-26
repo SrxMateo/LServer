@@ -597,6 +597,7 @@ body {
   <div class="nav-tabs">
     <button class="nav-tab active" data-tab="nodes">🖥️ Nodos</button>
     <button class="nav-tab" data-tab="groups">👥 Grupos</button>
+    <button class="nav-tab" data-tab="users">👤 Cuentas</button>
   </div>
 
   <div class="nav-right">
@@ -664,6 +665,34 @@ body {
         <div class="emoji">⏳</div>
         <h3>Cargando grupos…</h3>
       </div>
+    </div>
+  </div>
+
+  <!-- TAB: CUENTAS -->
+  <div class="tab-panel" id="tab-users">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Cuentas de Acceso <span id="users-count-badge"></span></div>
+        <div class="page-sub">Gestiona los usuarios con acceso autorizado al panel web de LServer</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="UserModal.open()">✨ + Crear Usuario</button>
+        <button class="btn btn-ghost" onclick="UserManager.load()">🔄 Actualizar</button>
+      </div>
+    </div>
+    <div class="card" style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;backdrop-filter:blur(12px);box-shadow:var(--shadow);">
+      <table class="files-table" style="width:100%">
+        <thead>
+          <tr>
+            <th style="width:35%">Usuario</th>
+            <th style="width:35%">Fecha de Creación</th>
+            <th style="width:30%;text-align:right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <tr><td colspan="3" style="text-align:center;padding:2rem;color:var(--text-2)"><span class="spin"></span> Cargando usuarios…</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -796,6 +825,36 @@ body {
   </div>
 </div>
 
+<!-- MODAL — CREAR USUARIO -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">👤 Crear Nueva Cuenta</div>
+      <button class="close-btn" onclick="UserModal.close()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:1.5rem">
+      <form onsubmit="UserModal.submit(event)">
+        <div class="form-group">
+          <label class="form-label">Nombre de Usuario</label>
+          <input class="form-input" id="user-username-input" placeholder="ej: admin, operador, mateo" required autocomplete="off">
+          <div class="form-hint">Solo letras, números, guiones y guiones bajos (sin espacios).</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input type="password" class="form-input" id="user-password-input" placeholder="Contraseña segura" required autocomplete="new-password">
+          <div class="form-hint">Mínimo 4 caracteres. Se cifra automáticamente con SHA-256.</div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.5rem">
+          <button type="button" class="btn btn-ghost" onclick="UserModal.close()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="user-submit-btn">👤 Crear Cuenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>
 
@@ -882,7 +941,7 @@ const Toast = (() => {
     t.innerHTML = `
       <div class="toast-header">
         <span class="toast-icon">${TYPE_ICONS[type] || '📢'}</span>
-        <span class="toast-sender">🖥️ localhost dice:</span>
+        <span class="toast-sender">🖥️ ${window.location.host || 'LServer'} dice:</span>
         <button class="toast-close" onclick="this.closest('.toast').remove()">✕</button>
       </div>
       <div class="toast-body">${message}</div>
@@ -941,6 +1000,10 @@ const API = {
   createFile:    (n, p, isDir) => API.post(`/api/files/create/${n}`, { path: p, is_dir: isDir }),
   deleteFile:    (n, p) => API.post(`/api/files/delete/${n}`, { path: p }),
   uploadFile:    (n, p, fn, b64) => API.post(`/api/files/upload/${n}`, { path: p, filename: fn, content_b64: b64 }),
+  // Cuentas de Acceso
+  users:         () => API.get('/api/users'),
+  addUser:       (u, p) => API.post('/api/users/add', { username: u, password: p }),
+  deleteUser:    u => API.post(`/api/users/delete/${encodeURIComponent(u)}`),
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -1560,6 +1623,109 @@ const GroupActions = {
 };
 
 /* ═══════════════════════════════════════════════════════════
+   USER MANAGER & MODAL
+═══════════════════════════════════════════════════════════ */
+const UserModal = (() => {
+  return {
+    open() {
+      Sound.click();
+      document.getElementById('user-username-input').value = '';
+      document.getElementById('user-password-input').value = '';
+      document.getElementById('user-modal').classList.add('active');
+      setTimeout(() => document.getElementById('user-username-input').focus(), 80);
+    },
+    close() {
+      Sound.click();
+      document.getElementById('user-modal').classList.remove('active');
+    },
+    async submit(e) {
+      e.preventDefault();
+      const u = document.getElementById('user-username-input').value.trim();
+      const p = document.getElementById('user-password-input').value;
+      if (!u || !p) return;
+
+      const btn = document.getElementById('user-submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spin"></span> Guardando…`;
+      Sound.click();
+
+      try {
+        const r = await API.addUser(u, p);
+        if (r.status === 'ok') {
+          UserModal.close();
+          Toast.success(`Usuario <b>${u}</b> creado exitosamente 👤`);
+          UserManager.load();
+        } else {
+          Toast.error(r.error || 'No se pudo crear el usuario.');
+        }
+      } catch(err) {
+        Toast.error('Error de conexión al crear usuario.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `👤 Crear Cuenta`;
+      }
+    }
+  };
+})();
+
+const UserManager = (() => {
+  async function load() {
+    const tbody = document.getElementById('users-tbody');
+    if (!tbody) return;
+    try {
+      const data = await API.users();
+      const users = data.users || [];
+      const badge = document.getElementById('users-count-badge');
+      if (badge) badge.textContent = users.length ? `(${users.length})` : '';
+
+      if (!users.length) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:2.5rem;color:var(--text-2)">
+          <div style="font-size:2rem;margin-bottom:.5rem">🔓</div>
+          <b>No hay cuentas configuradas.</b><br>
+          <span style="font-size:.8rem;color:var(--warning)">El panel web tiene acceso abierto sin contraseña. Crea una cuenta para protegerlo.</span>
+        </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="font-size:1.2rem">👤</span>
+              <strong style="color:var(--text);font-size:.9rem">${u.username}</strong>
+            </div>
+          </td>
+          <td style="color:var(--text-2);font-size:.82rem">${u.created_at || '—'}</td>
+          <td style="text-align:right">
+            <button class="btn btn-danger btn-sm btn-icon" title="Eliminar cuenta" onclick="UserManager.remove('${u.username}')">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch(err) {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:2rem;color:var(--danger)">Error de conexión al cargar usuarios.</td></tr>`;
+    }
+  }
+
+  async function remove(username) {
+    Sound.warning();
+    if (!confirm(`¿Estás seguro de que deseas eliminar la cuenta '${username}'?`)) return;
+    try {
+      const r = await API.deleteUser(username);
+      if (r.status === 'ok') {
+        Toast.warning(`Cuenta <b>${username}</b> eliminada.`);
+        load();
+      } else {
+        Toast.error(r.error || 'No se pudo eliminar la cuenta.');
+      }
+    } catch(err) {
+      Toast.error('Error de conexión al eliminar usuario.');
+    }
+  }
+
+  return { load, remove };
+})();
+
+/* ═══════════════════════════════════════════════════════════
    APP CONTROLLER
 ═══════════════════════════════════════════════════════════ */
 const App = (() => {
@@ -1628,7 +1794,7 @@ const App = (() => {
 
   async function refresh() {
     animateRefreshBar(REFRESH_INTERVAL);
-    await Promise.all([loadNodes(), loadGroups()]);
+    await Promise.all([loadNodes(), loadGroups(), UserManager.load()]);
   }
 
   function startAutoRefresh() {
@@ -1665,11 +1831,15 @@ document.getElementById('node-modal').addEventListener('click', e => {
 document.getElementById('create-modal').addEventListener('click', e => {
   if (e.target === e.currentTarget) CreateModal.close();
 });
+document.getElementById('user-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) UserModal.close();
+});
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     Modal.close();
     CreateModal.close();
+    UserModal.close();
   }
 });
 
