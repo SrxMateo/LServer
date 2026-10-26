@@ -4,6 +4,7 @@ import json
 import base64
 import subprocess
 import signal
+import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from lserver.web.auth import verify_credentials, has_credentials
 from lserver.web import api
@@ -74,7 +75,9 @@ class LServerHandler(BaseHTTPRequestHandler):
         if not self._check_auth():
             return
         
-        path = self.path.rstrip('/')
+        parsed = urllib.parse.urlsplit(self.path)
+        path = parsed.path.rstrip('/')
+        query = urllib.parse.parse_qs(parsed.query)
         
         if path == '' or path == '/':
             self._send_file(os.path.join(STATIC_DIR, 'index.html'), 'text/html; charset=utf-8')
@@ -82,12 +85,22 @@ class LServerHandler(BaseHTTPRequestHandler):
             self._send_json(api.api_nodes())
         elif path == '/api/groups':
             self._send_json(api.api_groups())
+        elif path == '/api/templates':
+            self._send_json(api.api_templates())
         elif path.startswith('/api/logs/'):
             node_name = path.split('/api/logs/', 1)[1]
             self._send_json(api.api_logs(node_name))
         elif path.startswith('/api/startsh/'):
             node_name = path.split('/api/startsh/', 1)[1]
             self._send_json(api.api_get_startsh(node_name))
+        elif path.startswith('/api/files/list/'):
+            node_name = path.split('/api/files/list/', 1)[1]
+            subpath = query.get('path', [''])[0]
+            self._send_json(api.api_list_files(node_name, subpath))
+        elif path.startswith('/api/files/read/'):
+            node_name = path.split('/api/files/read/', 1)[1]
+            subpath = query.get('path', [''])[0]
+            self._send_json(api.api_read_file(node_name, subpath))
         else:
             # Servir archivos estaticos
             safe_path = path.lstrip('/')
@@ -107,9 +120,25 @@ class LServerHandler(BaseHTTPRequestHandler):
         if not self._check_auth():
             return
         
-        path = self.path.rstrip('/')
+        parsed = urllib.parse.urlsplit(self.path)
+        path = parsed.path.rstrip('/')
+        content_length = int(self.headers.get('Content-Length', 0))
+        body_data = {}
+        if content_length > 0:
+            try:
+                body_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
+            except Exception:
+                body_data = {}
         
-        if path.startswith('/api/start/'):
+        if path == '/api/node/create':
+            name = body_data.get('name', '')
+            template = body_data.get('template', None)
+            self._send_json(api.api_create_node(name, template))
+        elif path.startswith('/api/node/delete/'):
+            node_name = path.split('/api/node/delete/', 1)[1]
+            delete_files = bool(body_data.get('delete_files', False))
+            self._send_json(api.api_delete_node(node_name, delete_files))
+        elif path.startswith('/api/start/'):
             node_name = path.split('/api/start/', 1)[1]
             self._send_json(api.api_start(node_name))
         elif path.startswith('/api/stop/'):
@@ -123,16 +152,19 @@ class LServerHandler(BaseHTTPRequestHandler):
             self._send_json(api.api_restart(node_name))
         elif path.startswith('/api/startsh/'):
             node_name = path.split('/api/startsh/', 1)[1]
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length > 0:
-                body = self.rfile.read(content_length)
-                try:
-                    data = json.loads(body)
-                    self._send_json(api.api_save_startsh(node_name, data.get('content', '')))
-                except json.JSONDecodeError:
-                    self._send_json({'error': 'Invalid JSON'}, 400)
-            else:
-                self._send_json({'error': 'Missing body'}, 400)
+            self._send_json(api.api_save_startsh(node_name, body_data.get('content', '')))
+        elif path.startswith('/api/files/write/'):
+            node_name = path.split('/api/files/write/', 1)[1]
+            self._send_json(api.api_write_file(node_name, body_data.get('path', ''), body_data.get('content', '')))
+        elif path.startswith('/api/files/create/'):
+            node_name = path.split('/api/files/create/', 1)[1]
+            self._send_json(api.api_create_file(node_name, body_data.get('path', ''), body_data.get('is_dir', False)))
+        elif path.startswith('/api/files/delete/'):
+            node_name = path.split('/api/files/delete/', 1)[1]
+            self._send_json(api.api_delete_file(node_name, body_data.get('path', '')))
+        elif path.startswith('/api/files/upload/'):
+            node_name = path.split('/api/files/upload/', 1)[1]
+            self._send_json(api.api_upload_file(node_name, body_data.get('path', ''), body_data.get('filename', ''), body_data.get('content_b64', '')))
         elif path.startswith('/api/group/start/'):
             gname = path.split('/api/group/start/', 1)[1]
             self._send_json(api.api_group_start(gname))
@@ -141,17 +173,7 @@ class LServerHandler(BaseHTTPRequestHandler):
             self._send_json(api.api_group_stop(gname))
         elif path.startswith('/api/command/'):
             node_name = path.split('/api/command/', 1)[1]
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length > 0:
-                body = self.rfile.read(content_length)
-                try:
-                    data = json.loads(body)
-                    cmd = data.get('command', '')
-                    self._send_json(api.api_send_command(node_name, cmd))
-                except json.JSONDecodeError:
-                    self._send_json({'error': 'Invalid JSON'}, 400)
-            else:
-                self._send_json({'error': 'Missing body'}, 400)
+            self._send_json(api.api_send_command(node_name, body_data.get('command', '')))
         else:
             self._send_json({'error': 'Ruta no encontrada'}, 404)
     
